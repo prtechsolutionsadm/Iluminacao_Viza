@@ -1,0 +1,32 @@
+[Unit]
+Description=Sistema de Iluminação Viza - Servidor FastAPI
+Documentation=https://github.com/engemase/sistema-iluminacao-viza
+After=network.target wg-quick@wg0.service
+Wants=wg-quick@wg0.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/sistema-iluminacao-viza
+Environment="PATH=/home/pi/sistema-iluminacao-viza/venv/bin"
+ExecStart=/home/pi/sistema-iluminacao-viza/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 80
+
+# Reiniciar sempre em caso de falha
+Restart=always
+RestartSec=10
+
+# Limites de recursos
+LimitNOFILE=65536
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=iluminacao-viza
+
+# Segurança
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

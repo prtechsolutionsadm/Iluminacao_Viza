@@ -1,0 +1,3074 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8"/>
+  
+  <!-- VIEWPORT ÚNICA E OTIMIZADA PARA PWA MOBILE -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- TEMA E FAVICON -->
+  <meta name="theme-color" content="#8e44ad" />
+  <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
+
+  <!-- PWA - PROGRESSIVE WEB APP -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Viza Iluminação">
+  <link rel="apple-touch-icon" href="/static/images/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/static/images/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/images/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/static/images/icon-192x192.png">
+
+  <!-- TITULO DA GUIA -->
+  <title>Sistema De Iluminação Viza Atacadista</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #333;
+      min-height: 100vh;
+    }
+    
+    /* Espaço para menu inferior apenas em mobile */
+    @media (max-width: 767px) {
+      body {
+        padding-bottom: 80px;
+      }
+    }
+
+    /* ========== SISTEMA DE NOTIFICAÇÕES TOAST ========== */
+    
+    /* Container das notificações */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 400px;
+      pointer-events: none;
+    }
+
+    /* Estilo base do toast */
+    .toast {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      max-width: 350px;
+      min-width: 320px;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Toast visível */
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    /* Toast saindo */
+    .toast.hide {
+      transform: translateX(100%);
+      opacity: 0;
+      margin-bottom: -80px;
+    }
+
+    /* Ícones dos toasts */
+    .toast-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Conteúdo do toast */
+    .toast-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin: 0 0 4px 0;
+      color: #2c3e50;
+      line-height: 1.3;
+    }
+
+    .toast-message {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* Botão de fechar */
+    .toast-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .toast-close:hover {
+      background: rgba(0, 0, 0, 0.1);
+      color: #64748b;
+    }
+
+    /* Barra de progresso */
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: currentColor;
+      border-radius: 0 0 12px 12px;
+      opacity: 0.3;
+      transition: width linear;
+    }
+
+    .toast.success {
+      border-left: 4px solid #10b981;
+    }
+    .toast.success .toast-icon { color: #10b981; }
+    .toast.success .toast-progress { background: #10b981; }
+
+    .toast.error {
+      border-left: 4px solid #ef4444;
+    }
+    .toast.error .toast-icon { color: #ef4444; }
+    .toast.error .toast-progress { background: #ef4444; }
+
+    .toast.warning {
+      border-left: 4px solid #f59e0b;
+    }
+    .toast.warning .toast-icon { color: #f59e0b; }
+    .toast.warning .toast-progress { background: #f59e0b; }
+
+    .toast.info {
+      border-left: 4px solid #3b82f6;
+    }
+    .toast.info .toast-icon { color: #3b82f6; }
+    .toast.info .toast-progress { background: #3b82f6; }
+
+    .toast.system {
+      border-left: 4px solid #8b5cf6;
+    }
+    .toast.system .toast-icon { color: #8b5cf6; }
+    .toast.system .toast-progress { background: #8b5cf6; }
+
+    /* ========== MENU INFERIOR ESTILO APP ========== */
+    
+    /* ========== NAVEGAÇÃO NO CABEÇALHO ========== */
+    .bottom-nav {
+      display: none; /* Oculto por padrão no desktop */
+    }
+    
+    @media (max-width: 767px) {
+      .bottom-nav {
+        display: block; /* Mostrar apenas no mobile */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 8px 0;
+        z-index: 1000;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        margin-top: 0;
+      }
+    }
+    
+    .nav-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 8px;
+      text-decoration: none;
+      color: #666;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      min-width: 60px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .nav-item.active {
+      color: #8e44ad;
+      background: rgba(142, 68, 173, 0.1);
+    }
+    
+    .nav-item:hover {
+      color: #8e44ad;
+      background: rgba(142, 68, 173, 0.05);
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+    
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.2;
+    }
+    
+    .nav-badge {
+      position: absolute;
+      top: 2px;
+      right: 8px;
+      background: #e74c3c;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 8px;
+      font-weight: bold;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      padding: 15px 20px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      gap: 20px;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 0 0 auto;
+    }
+    
+    .header-center {
+      flex: 0 0 auto;
+      text-align: left;
+      margin-left: 40px;
+    }
+    
+    .header-title-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 2px;
+    }
+    
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+      line-height: 1.2;
+    }
+    
+    .header-subtitle {
+      font-size: 12px;
+      color: #6c757d;
+      margin: 0;
+      font-weight: 500;
+      text-align: left;
+      margin-left: 0;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: 25px;
+    }
+    
+    .header-nav-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex: 1;
+      justify-content: center;
+    }
+    
+    .header-logo-right {
+      flex: 0 0 auto;
+    }
+
+    .logo {
+      height: 40px;
+      object-fit: contain;
+    }
+    
+    nav a {
+      margin: 0 8px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: inline-block;
+      font-size: 14px;
+    }
+    
+    nav a:hover {
+      background: rgba(142,68,173,0.1);
+      color: #8e44ad;
+    }
+    
+    main {
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Cards para seções */
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(15px);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 15px 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+    
+    .card h2 {
+      margin: 0 0 20px 0;
+      color: #2c3e50;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      position: relative;
+    }
+    
+    .card h2:after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(90deg, #8e44ad, #9b59b6);
+      border-radius: 2px;
+    }
+    
+    /* Botões modernos */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      color: #495057;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn:hover:before {
+      left: 100%;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    
+    .btn.ativo {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: white;
+      box-shadow: 0 4px 20px rgba(251,191,36,0.4);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #8e44ad, #9b59b6);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #7b2cbf, #6f42c1);
+    }
+    
+    .btn-edit {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #212529;
+      padding: 4px 8px;
+      font-size: 11px;
+      margin-right: 3px;
+    }
+    
+    .btn-delete {
+      background: linear-gradient(135deg, #dc3545, #e74c3c);
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+    
+    .btn-toggle {
+      background: linear-gradient(135deg, #6f42c1, #7952b3);
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      margin-right: 3px;
+    }
+    
+    /* Controles de luminosidade modernos */
+    .luminosity-control {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      padding: 20px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: all 0.3s ease;
+      opacity: 1;
+      max-height: 200px;
+      overflow: hidden;
+    }
+    
+    /* Classes para controlar visibilidade */
+    .luminosity-control.oculto {
+      opacity: 0;
+      max-height: 0;
+      padding: 0 20px;
+      margin: 0;
+      pointer-events: none;
+    }
+    
+    .slider-container {
+      width: 100%;
+      max-width: 300px;
+      position: relative;
+    }
+    
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 20px;
+      outline: none;
+      transition: all 0.3s ease;
+      background: linear-gradient(to right, #8e44ad 0%, #8e44ad 50%, #e0e0e0 50%, #e0e0e0 100%);
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #8e44ad, #9b59b6);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(142,68,173,0.4);
+      transition: all 0.3s ease;
+    }
+    
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(142,68,173,0.6);
+    }
+    
+    .luminosity-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .luminosity-input {
+      width: 70px;
+      text-align: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .luminosity-input:focus {
+      border-color: #8e44ad;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(142,68,173,0.1);
+    }
+
+    /* Indicador visual para campos que precisam de Enter */
+    .luminosity-input.pending-confirmation {
+      border-color: #fbbf24;
+      background-color: #fffbf0;
+      box-shadow: 0 0 0 3px rgba(251,191,36,0.1);
+    }
+
+    .luminosity-input.pending-confirmation::placeholder {
+      color: #f59e0b;
+    }
+
+    /* Tooltip para indicar que precisa pressionar Enter */
+    .input-with-tooltip {
+      position: relative;
+    }
+
+    .input-tooltip {
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(251,191,36,0.9);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+
+    .input-tooltip::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-bottom: 4px solid rgba(251,191,36,0.9);
+    }
+
+    .luminosity-input.pending-confirmation + .input-tooltip {
+      opacity: 1;
+    }
+    
+    .sector-selector {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .sector-selector label {
+      font-size: 16px;
+      font-weight: 600;
+      color: #495057;
+      margin-right: 15px;
+    }
+    
+    .sector-select {
+      padding: 10px 20px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      background: white;
+      color: #495057;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 150px;
+    }
+    
+    .sector-select:focus {
+      border-color: #8e44ad;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(142,68,173,0.1);
+    }
+    
+    /* Controle de agendamento */
+    .schedule-controls {
+      display: grid;
+      grid-template-columns: repeat(3, max-content);
+      justify-content: space-evenly;
+      margin-bottom: 20px;
+    }
+    
+    .time-input {
+      padding: 10px 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .time-input:focus {
+      border-color: #8e44ad;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(142,68,173,0.1);
+    }
+    
+    /* Tabela moderna */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    #tabelaAgendamentos {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    #tabelaAgendamentos th {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: white;
+      padding: 15px 12px;
+      font-weight: 600;
+      text-align: left;
+      position: sticky;
+      top: 0;
+    }
+    
+    #tabelaAgendamentos td {
+      padding: 12px;
+      border-bottom: 1px solid #f8f9fa;
+      vertical-align: middle;
+    }
+    
+    #tabelaAgendamentos tr:hover {
+      background: rgba(251,191,36,0.05);
+    }
+    
+    .status-message {
+      margin-left: 15px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .status-message.show {
+      opacity: 1;
+    }
+    
+    .status-success {
+      background: rgba(40,167,69,0.1);
+      color: #28a745;
+      border: 1px solid rgba(40,167,69,0.2);
+    }
+    
+    .status-error {
+      background: rgba(220,53,69,0.1);
+      color: #dc3545;
+      border: 1px solid rgba(220,53,69,0.2);
+    }
+    
+    
+    /* Badge de status */
+    .status-badge {
+      display: inline-block;
+      padding: 3px 6px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-badge.ativo {
+      background: rgba(40,167,69,0.2);
+      color: #28a745
+    }
+    
+    .status-badge.inativo {
+      background: rgba(220,53,69,0.2);
+      color: #dc3545;
+    }
+
+    /* Sincronização Módulo RTC */
+    .current-time-display {
+      text-align: center;
+      margin: 10px 0;
+      padding: 8px 10px;
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .current-time {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fbbf24;
+      font-family: 'Courier New', monospace;
+    }
+
+    .sync-btn {
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #fbbf24, #e07c0b);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sync-btn:hover {
+      background: linear-gradient(135deg, #fbbf24, #e07c0b);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(23,162,184,0.3);
+    }
+
+    .sync-status {
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 6px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .sync-status.show {
+      opacity: 1;
+    }
+
+    .sync-status.success {
+      background: rgba(40,167,69,0.2);
+      color: #28a745;
+    }
+
+    .sync-status.error {
+      background: rgba(220,53,69,0.2);
+      color: #dc3545;
+    }
+
+    /* Botões de reinicialização com tamanho uniforme */
+    .btn-reiniciar {
+      min-width: 160px;
+      width: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Status da conexão no header */
+    .status-conexao {
+      font-size: 11px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-online {
+      color: #10b981;
+    }
+    
+    .status-offline {
+      color: #ef4444;
+    }
+    
+    .status-connecting {
+      color: #fbbf24;
+    }
+
+
+    /* Responsividade apenas para MOBILE */
+    @media (max-width: 767px) {
+      .footer {
+        padding: 20px 10px 10px 10px;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .footer-section {
+        text-align: center;
+      }
+
+      .footer-bottom-content {
+        text-align: center;
+        gap: 8px;
+      }
+
+      .tech-stack {
+        gap: 6px;
+      }
+
+      .tech-badge {
+        font-size: 9px;
+        padding: 2px 6px;
+      }
+      
+      .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+      
+      .toast {
+        min-width: auto;
+        max-width: none;
+        font-size: 12px;
+        padding: 12px 16px;
+      }
+
+      header {
+        padding: 10px 15px;
+        gap: 15px;
+        flex-direction: column;
+      }
+      
+      /* Reorganizar para mobile: logos primeiro */
+      .header-left, .header-right {
+        width: auto;
+        flex: none;
+      }
+      
+      .header-left {
+        order: 1;
+        align-self: flex-start;
+      }
+      
+      .header-right {
+        order: 2;
+        align-self: flex-end;
+        position: absolute;
+        top: 10px;
+        right: 15px;
+      }
+      
+      .header-nav-section {
+        display: none; /* Ocultar menu no mobile */
+      }
+      
+      .header-logo-right {
+        display: flex;
+      }
+      
+      .header-center {
+        order: 3;
+        margin-bottom: 0;
+        margin-left: 0;
+        margin-top: 10px;
+        text-align: center;
+        width: 100%;
+      }
+      
+      .header-title-section {
+        flex-direction: column;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .header-title {
+        font-size: 16px;
+        text-align: center;
+        order: 1;
+      }
+      
+      .header-subtitle {
+        font-size: 11px;
+        text-align: center;
+        order: 2;
+      }
+      
+      .status-conexao {
+        order: 3;
+        font-size: 10px;
+        padding: 3px 6px;
+        margin-top: 5px;
+      }
+
+      header nav {
+        display: none; /* Ocultar menu de navegação no mobile */
+      }
+
+      .logo {
+        height: 32px;
+      }
+
+      main {
+        padding: 10px;
+        max-width: 100%;
+      }
+
+      .card {
+        margin: 8px 5px;
+        padding: 16px;
+        border-radius: 12px;
+      }
+      
+      
+      .card h2 {
+        font-size: 18px;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+
+      .btn-group {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .btn {
+        width: 100%;
+        font-size: 16px;
+        padding: 14px;
+        border-radius: 12px;
+        min-height: 48px; /* Melhor para touch */
+      }
+
+      .slider-container {
+        margin: 20px 0;
+        padding: 0 10px;
+      }
+      
+      .slider {
+        height: 8px;
+        border-radius: 4px;
+      }
+
+      .luminosity-info {
+        gap: 10px;
+      }
+
+      .luminosity-input {
+        width: 60px;
+        padding: 6px 8px;
+        font-size: 14px;
+      }
+
+      .sector-selector {
+        margin: 15px 0;
+      }
+
+      .sector-selector label {
+        font-size: 14px;
+        margin-right: 10px;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .sector-select {
+        padding: 8px 15px;
+        font-size: 14px;
+        width: 100%;
+        max-width: 250px;
+      }
+
+      .schedule-controls {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .schedule-controls > div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .schedule-controls label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #495057;
+      }
+
+      .time-input {
+        padding: 8px 12px;
+        font-size: 14px;
+        width: 100%;
+        max-width: 150px;
+      }
+
+      .table-container {
+        margin: 0 -5px;
+      }
+
+      #tabelaAgendamentos {
+        font-size: 12px;
+        min-width: 600px;
+      }
+
+      #tabelaAgendamentos th {
+        padding: 10px 8px;
+        font-size: 11px;
+      }
+
+      #tabelaAgendamentos td {
+        padding: 8px;
+      }
+
+      .btn-edit, .btn-delete, .btn-toggle {
+        padding: 4px 8px;
+        font-size: 11px;
+      }
+
+      .status-message {
+        margin: 10px 0;
+        text-align: center;
+        font-size: 13px;
+      }
+
+      .current-time-display {
+        flex-direction: column;
+        gap: 8px;
+        margin: 10px 0;
+        padding: 8px 10px;
+      }
+
+      .current-time {
+        font-size: 16px;
+      }
+
+      .sync-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+
+      .install-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+
+      /* Card de download mobile */
+      .download-features {
+        gap: 10px;
+      }
+
+      .feature-item {
+        min-width: 60px;
+      }
+
+      .feature-icon {
+        font-size: 20px;
+      }
+
+      .feature-label {
+        font-size: 11px;
+      }
+
+      .info-box {
+        padding: 12px;
+        margin: 12px 0;
+      }
+
+      .info-box p {
+        font-size: 13px !important;
+      }
+
+      .btn-download {
+        min-width: 140px;
+      }
+    }
+
+    /* Animações */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .card {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .card:nth-child(4) { animation-delay: 0.3s; }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+  </style>
+</head>
+<body onload="carregarEstado(); carregarTipoOperacao();">
+  
+  <!-- Container das notificações (sempre presente) -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Menus e Logos-->   
+  <header>
+    <div class="header-left">
+      <a href="/"><img src="/static/images/Viza_Logo.png" alt="Viza" class="logo"></a>
+    </div>
+    
+    <div class="header-center">
+      <div class="header-title-section">
+        <h1 class="header-title">Sistema De Iluminação Viza</h1>
+        <!-- Status da conexão -->
+        <div id="status-conexao" class="status-conexao status-connecting">
+          <span id="status-text">Conectando</span>
+        </div>
+      </div>
+      <p class="header-subtitle">Controle Inteligente De Iluminação</p>
+    </div>
+    
+    <div class="header-right">
+      <div class="header-nav-section">
+        <nav>
+          <a href="/">🏢 Operação</a>
+          <a href="/Visualizacao">📊 Visualização</a>
+          <a href="/Consumo">⚡ Consumo</a>
+          <a href="/Banco">🗄️ Banco</a>
+          <a href="/Manual">📖 Manual</a>
+        </nav>
+      </div>
+      
+      <div class="header-logo-right">
+        <img src="/static/images/Engemase_Logo.png" alt="Engemase" class="logo">
+      </div>
+    </div>
+  </header>
+  
+  <main>
+    <!-- Seleção do Tipo de Operação -->
+    <div class="card">
+      <h2>⚙️ Tipo de Operação</h2>
+      
+      <div class="btn-group" style="margin-bottom: 20px;">
+        <button id="btnControleGeral" class="btn btn-primary ativo" onclick="selecionarTipoOperacao('geral')">
+          🏢 Controle Geral
+          <div style="font-size: 11px; margin-top: 4px; opacity: 0.9;">Comandos afetam todos os setores</div>
+        </button>
+        <button id="btnControleSetores" class="btn btn-primary" onclick="selecionarTipoOperacao('setores')">
+          🏭 Controle por Setores
+          <div style="font-size: 11px; margin-top: 4px; opacity: 0.9;">Comandos afetam apenas o setor selecionado</div>
+        </button>
+      </div>
+      
+      <div id="infoTipoOperacao" style="text-align: center; padding: 12px; background: rgba(142,68,173,0.1); border-radius: 8px; font-size: 13px; color: #6c757d;">
+        <strong>Modo Ativo:</strong> <span id="textoModoAtivo">Controle Geral - Todos os comandos serão aplicados a todos os setores simultaneamente</span>
+      </div>
+    </div>
+
+    <!-- Card de Controles Dinâmico -->
+    <div class="card">
+      <h2 id="tituloControles">🏢 Controle Geral</h2>
+      
+      <!-- Seletor de Setor (só aparece no modo setores) -->
+      <div id="seletorSetor" class="sector-selector" style="display: none;">
+        <label for="Setoreselect">Selecione o Setor:</label>
+        <select id="Setoreselect" class="sector-select" onchange="carregarEstado()">
+          <option value="SemSelecao">Sem Seleção</option>
+          <option value="1">🚗 Estacionamento</option>
+          <option value="2">🏪 Loja</option>
+          <option value="3">📦 Depósito</option>
+        </select>
+      </div>
+      
+      <!-- Botões de Modo -->
+      <div class="btn-group">
+        <button id="btnManual" class="btn" onclick="ativarModo('manual')">🔧 Modo Manual</button>
+        <button id="btnAutomatico" class="btn" onclick="ativarModo('automatico')">🤖 Modo Automático</button>
+      </div>
+      
+      <!-- Controles De Luminosidade (Modo Manual) -->
+      <div id="controlesLuminosidade" class="luminosity-control oculto">
+        <div class="slider-container">
+          <input type="range" id="sliderLuminosidade" class="slider" min="0" max="100" oninput="atualizarSlider(this.value)">
+        </div>
+        <div class="luminosity-info">
+          <label for="inputLuminosidade">💡 Luminosidade:</label>
+          <div class="input-with-tooltip">
+            <input type="number" id="inputLuminosidade" class="luminosity-input" min="0" max="100" placeholder="Digite e pressione Enter">
+            <div class="input-tooltip">Pressione Enter para confirmar</div>
+          </div>
+          <span id="valorLuminosidade">%</span>
+        </div>
+      </div>
+
+      <!-- Controle de Setpoint Lux (Modo Automático) -->
+      <div id="controlesSetpointLux" class="luminosity-control oculto">
+        <div class="luminosity-info" style="margin-top: 15px;">
+          <label for="inputSetpointLuxGeral">🌟 Setpoint de Lux (Modo Automático):</label>
+          <div class="input-with-tooltip">
+            <input type="number" id="inputSetpointLuxGeral" class="luminosity-input" min="300" max="1000" value="300" step="10" 
+                   inputmode="numeric" enterkeyhint="done" 
+                   placeholder="Digite e pressione Enter ou Concluir">
+            <div class="input-tooltip">Pressione Enter/Concluir para confirmar</div>
+          </div>
+          <span>lux</span>
+        </div>
+        <div style="font-size: 12px; color: #6c757d; margin-top: 5px; text-align: center;">
+          💡 <span id="descricaoSetpoint">Define o nível de iluminação desejado para todas as luminárias</span>
+        </div>
+      </div>
+
+      <!-- Controle de Setpoint Lux Por Setor (Modo Automático) -->
+      <div id="controlesSetpointLuxSetor" class="luminosity-control oculto">
+        <div class="luminosity-info" style="margin-top: 15px;">
+          <label for="inputSetpointLuxSetor">🌟 Setpoint de Lux (Modo Automático):</label>
+          <div class="input-with-tooltip">
+            <input type="number" id="inputSetpointLuxSetor" class="luminosity-input" min="300" max="1000" value="300" step="10" 
+                   inputmode="numeric" enterkeyhint="done" 
+                   placeholder="Digite e pressione Enter ou Concluir">
+            <div class="input-tooltip">Pressione Enter/Concluir para confirmar</div>
+          </div>
+          <span>lux</span>
+        </div>
+        <div style="font-size: 12px; color: #6c757d; margin-top: 5px; text-align: center;">
+          💡 Define o nível de iluminação desejado para o setor selecionado
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Controle por Agendamento -->
+    <div class="card">
+      <h2>⏰ Agendamento Por Setores</h2>
+      
+      <div class="sector-selector">
+        <label for="SetorHorario">Selecione o Setor:</label>
+        <select id="SetorHorario" class="sector-select">
+          <option value="">Sem Seleção</option>
+          <option value="1">🚗 Estacionamento</option>
+          <option value="2">🏪 Loja</option>
+          <option value="3">📦 Depósito</option>
+        </select>
+        <div class="current-time-display">
+          <div>
+            <span style="color: #495057; font-weight: 500;">⏰ Hora Atual do Sistema:</span>
+            <span id="horarioAtual" class="current-time">--:--:--</span>
+          </div>
+          <button id="btnSincronizar" class="sync-btn" onclick="sincronizarRTC()">
+            🔄 Sincronizar
+          </button>
+          <span id="statusSincronizacao" class="sync-status"></span>
+        </div>
+      </div>
+
+      <div class="schedule-controls">
+        <div>
+          <label for="horaLigar">🌅 Horário para Ligar:</label>
+          <input type="time" id="horaLigar" class="time-input">
+        </div>
+        
+        <div>
+          <label for="horaDesligar">🌙 Horário para Desligar:</label>
+          <input type="time" id="horaDesligar" class="time-input">
+        </div>
+        
+        <div>
+          <label for="brilhoLigar">💡 Brilho ao Ligar:</label>
+          <input type="number" id="brilhoLigar" class="luminosity-input" min="0" max="100" value="100">
+          <span>%</span>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <button id="btnAgendar" class="btn btn-primary" onclick="agendarSetores()">⏰ Agendar</button>
+      </div>
+      <div id="statusAgendamento" class="status-message"></div>
+    </div>
+
+    <!-- Tabela De Vizualização Agendamento -->
+    <div class="card">
+      <h2>📋 Agendamentos dos Setores</h2>
+      <div class="table-container">
+        <table id="tabelaAgendamentos">
+          <thead>
+            <tr>
+              <th>🏭 Setor</th>
+              <th>🌅 Ligar</th>
+              <th>🌙 Desligar</th>
+              <th>💡 Brilho</th>
+              <th>📊 Status</th>
+              <th>⚙️ Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Controle Remoto de Reinicialização -->
+    <div class="card">
+      <h2>🔄 Controle Remoto do Sistema</h2>
+
+      <div class="btn-group">
+        <button id="btnReiniciarMestre" class="btn btn-primary btn-reiniciar" onclick="reiniciarMestre()">
+          🔄 Reiniciar Mestre
+        </button>
+        <button id="btnReiniciarEscravo" class="btn btn-delete btn-reiniciar" onclick="reiniciarEscravo()">
+          🔄 Reiniciar Escravo
+        </button>
+      </div>
+
+      <div style="text-align: center; margin-top: 15px; padding: 10px; background: rgba(220, 53, 69, 0.1); border-radius: 8px; border-left: 4px solid #dc3545;">
+        <small style="color: #dc3545; font-weight: 600;">
+          ⚠️ <strong>Aviso:</strong> Estas ações irão reinicializar completamente os ESP32 do sistema
+        </small>
+      </div>
+
+      <div id="statusReinicializacao" class="status-message"></div>
+    </div>
+
+  </main>
+
+  <!-- Menu Inferior Estilo App -->
+  <nav class="bottom-nav">
+    <div class="nav-container">
+      <a href="/" class="nav-item active">
+        <div class="nav-icon">🏢</div>
+        <div class="nav-label">Operação</div>
+      </a>
+      <a href="/Visualizacao" class="nav-item">
+        <div class="nav-icon">📊</div>
+        <div class="nav-label">Visualização</div>
+      </a>
+      <a href="/Consumo" class="nav-item">
+        <div class="nav-icon">⚡</div>
+        <div class="nav-label">Consumo</div>
+      </a>
+      <a href="/Banco" class="nav-item">
+        <div class="nav-icon">🗄️</div>
+        <div class="nav-label">Banco</div>
+      </a>
+      <a href="/Manual" class="nav-item">
+        <div class="nav-icon">📖</div>
+        <div class="nav-label">Manual</div>
+      </a>
+    </div>
+  </nav>
+
+    <script>
+    // ========== SISTEMA DE NOTIFICAÇÕES TOAST ==========
+    
+    // Classe Das Notificações
+    class ToastManager {
+      constructor() {
+        this.container = document.getElementById('toast-container');
+        this.toasts = new Map();
+        this.nextId = 1;
+      }
+      
+      isDuplicate(title, message) {
+        for (let [id, toastData] of this.toasts) {
+          const existingTitle = toastData.element.querySelector('.toast-title')?.textContent;
+          const existingMessage = toastData.element.querySelector('.toast-message')?.textContent || '';
+          
+          if (existingTitle === title && existingMessage === message) {
+            return id;
+          }
+        }
+        return null;
+      }
+
+      show(type = 'info', title, message, options = {}) {
+        // ANTI-DUPLICATA: Verificar se já existe toast similar
+        const duplicateId = this.isDuplicate(title, message);
+        if (duplicateId) {
+          // Se encontrou duplicata, apenas resetar o timer do existente
+          const existingToast = this.toasts.get(duplicateId);
+          if (existingToast && !existingToast.config.persistent) {
+            this.scheduleRemoval(duplicateId, options.duration || existingToast.config.duration);
+          }
+          return duplicateId;
+        }
+
+        // LIMITE MÁXIMO: Remover toasts antigos se exceder limite
+        if (this.toasts.size >= 3) {
+          const oldestId = this.toasts.keys().next().value;
+          this.remove(oldestId);
+        }
+        
+        const id = this.nextId++;
+        
+        const config = {
+          duration: options.duration || (type === 'error' ? 6000 : 4000),
+          persistent: options.persistent || false,
+          closable: options.closable !== false,
+          action: options.action || null,
+          ...options
+        };
+
+        const toast = this.createToast(id, type, title, message, config);
+        this.container.appendChild(toast);
+        this.toasts.set(id, { element: toast, config });
+
+        // Mostrar com animação
+        requestAnimationFrame(() => {
+          toast.classList.add('show');
+        });
+
+        // Auto-dismiss se não for persistente
+        if (!config.persistent) {
+          this.scheduleRemoval(id, config.duration);
+        }
+
+        return id;
+      }
+
+      createToast(id, type, title, message, config) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'polite');
+
+        const icons = {
+          success: '✅',
+          error: '❌', 
+          warning: '⚠️',
+          info: 'ℹ️',
+          system: '⚙️'
+        };
+
+        toast.innerHTML = `
+          <div class="toast-icon">${icons[type] || 'ℹ️'}</div>
+          <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            ${message ? `<div class="toast-message">${message}</div>` : ''}
+          </div>
+          ${config.closable ? '<button class="toast-close" aria-label="Fechar">×</button>' : ''}
+          ${!config.persistent ? '<div class="toast-progress"></div>' : ''}
+        `;
+
+        // Event listeners
+        if (config.closable) {
+          const closeBtn = toast.querySelector('.toast-close');
+          closeBtn.addEventListener('click', () => this.remove(id));
+        }
+
+        if (config.action) {
+          const actionBtn = document.createElement('button');
+          actionBtn.textContent = config.action.text;
+          actionBtn.className = 'toast-action';
+          actionBtn.addEventListener('click', config.action.callback);
+          toast.querySelector('.toast-content').appendChild(actionBtn);
+        }
+
+        // Barra de progresso
+        if (!config.persistent) {
+          const progress = toast.querySelector('.toast-progress');
+          if (progress) {
+            progress.style.width = '100%';
+            progress.style.transition = `width ${config.duration}ms linear`;
+            requestAnimationFrame(() => {
+              progress.style.width = '0%';
+            });
+          }
+        }
+
+        // Clique para fechar (opcional)
+        toast.addEventListener('click', (e) => {
+          if (e.target === toast || e.target.classList.contains('toast-content')) {
+            this.remove(id);
+          }
+        });
+
+        return toast;
+      }
+
+      scheduleRemoval(id, delay) {
+        setTimeout(() => {
+          this.remove(id);
+        }, delay);
+      }
+
+      remove(id) {
+        const toastData = this.toasts.get(id);
+        if (!toastData) return;
+
+        const { element } = toastData;
+        element.classList.add('hide');
+
+        setTimeout(() => {
+          if (element.parentNode) {
+            element.parentNode.removeChild(element);
+          }
+          this.toasts.delete(id);
+        }, 400);
+      }
+
+      removeAll() {
+        this.toasts.forEach((_, id) => this.remove(id));
+      }
+
+      // Métodos de conveniência
+      success(title, message, options) {
+        return this.show('success', title, message, options);
+      }
+
+      error(title, message, options) {
+        return this.show('error', title, message, { persistent: true, ...options });
+      }
+
+      warning(title, message, options) {
+        return this.show('warning', title, message, options);
+      }
+
+      info(title, message, options) {
+        return this.show('info', title, message, options);
+      }
+
+      system(title, message, options) {
+        return this.show('system', title, message, options);
+      }
+    }
+
+    // Instância global
+    const toast = new ToastManager();
+
+    // Função global para compatibilidade
+    function showToast(type, title, message, options) {
+      return toast.show(type, title, message, options);
+    }
+
+    // ====== VARIÁVEIS E ESTADO ==========
+    let estadoCarregado = false;
+    
+    // Variáveis para controle de status de conexão
+    let statusConexao = false;
+    let toastConexaoId = null;
+    let verificandoConexao = false;
+    
+    // Variável para controlar o tipo de operação (geral ou setores)
+    let tipoOperacaoAtual = 'geral';
+
+    // ====== FUNÇÕES PARA CONTROLAR VISIBILIDADE DOS CONTROLES ======
+    
+    function mostrarControlesLuminosidade(elemento, mostrar) {
+      if (mostrar) {
+        elemento.classList.remove('oculto');
+      } else {
+        elemento.classList.add('oculto');
+      }
+    }
+
+    // ====== FUNÇÃO PARA SELECIONAR TIPO DE OPERAÇÃO ======
+    function selecionarTipoOperacao(tipo) {
+      const tipoAnterior = tipoOperacaoAtual;
+      tipoOperacaoAtual = tipo;
+      
+      // Salvar preferência no localStorage
+      localStorage.setItem('tipoOperacao', tipo);
+      
+      // Atualizar botões
+      const btnGeral = document.getElementById('btnControleGeral');
+      const btnSetores = document.getElementById('btnControleSetores');
+      const textoModo = document.getElementById('textoModoAtivo');
+      
+      // Remover estado ativo dos botões de modo (Manual/Automático)
+      const btnManual = document.getElementById('btnManual');
+      const btnAutomatico = document.getElementById('btnAutomatico');
+      btnManual.classList.remove('ativo');
+      btnAutomatico.classList.remove('ativo');
+      
+      // Ocultar todos os controles ao trocar de tipo
+      mostrarControlesLuminosidade(document.getElementById('controlesLuminosidade'), false);
+      mostrarControlesLuminosidade(document.getElementById('controlesSetpointLux'), false);
+      mostrarControlesLuminosidade(document.getElementById('controlesSetpointLuxSetor'), false);
+      
+      if (tipo === 'geral') {
+        btnGeral.classList.add('ativo');
+        btnSetores.classList.remove('ativo');
+        textoModo.textContent = 'Controle Geral - Todos os comandos serão aplicados a todos os setores simultaneamente';
+        toast.info('Controle Geral Ativo', 'Comandos afetarão todos os setores simultaneamente. Selecione Manual ou Automático.');
+      } else {
+        btnGeral.classList.remove('ativo');
+        btnSetores.classList.add('ativo');
+        textoModo.textContent = 'Controle por Setores - Comandos afetarão apenas o setor selecionado';
+        toast.info('Controle por Setores Ativo', 'Comandos afetarão apenas o setor selecionado. Selecione um setor e escolha o modo.');
+      }
+      
+      // Atualizar interface do card de controles
+      atualizarInterfaceControles();
+      
+      // IMPORTANTE: Recarregar estado do sistema após trocar tipo de operação
+      // Isso garante que a interface reflita o estado real do backend
+      if (tipoAnterior !== tipo && statusConexao) {
+        setTimeout(() => {
+          carregarEstado();
+        }, 300);
+      }
+    }
+
+    // ====== FUNÇÃO PARA ATUALIZAR INTERFACE DOS CONTROLES ======
+    function atualizarInterfaceControles() {
+      const titulo = document.getElementById('tituloControles');
+      const seletorSetor = document.getElementById('seletorSetor');
+      const descricaoSetpoint = document.getElementById('descricaoSetpoint');
+      const controlesSetpointGeral = document.getElementById('controlesSetpointLux');
+      const controlesSetpointSetor = document.getElementById('controlesSetpointLuxSetor');
+      
+      if (tipoOperacaoAtual === 'geral') {
+        titulo.textContent = '🏢 Controle Geral';
+        seletorSetor.style.display = 'none';
+        descricaoSetpoint.textContent = 'Define o nível de iluminação desejado para todas as luminárias';
+      } else {
+        titulo.textContent = '🏭 Controle por Setores';
+        seletorSetor.style.display = 'block';
+        descricaoSetpoint.textContent = 'Define o nível de iluminação desejado para o setor selecionado';
+      }
+    }
+
+    // ====== FUNÇÃO PARA CARREGAR TIPO DE OPERAÇÃO SALVO ======
+    function carregarTipoOperacao() {
+      const tipoSalvo = localStorage.getItem('tipoOperacao') || 'geral';
+      selecionarTipoOperacao(tipoSalvo);
+    }
+
+    function carregarEstado() {
+
+      fetch('/api/status')
+        .then(response => response.json())
+        .then(data => {
+          // Comentado: funções antigas removidas
+          // if (data.modo === 'manual') {
+          //   exibirManual();
+          // } else {
+          //   exibirAutomatico();
+          // }
+          // exibirBrilho(data.brilho);
+          
+          // Carregar setpoint de lux se existir
+          if (data.setpointLuxGeral !== undefined) {
+            const inputSetpointLux = document.getElementById('inputSetpointLuxGeral');
+            if (inputSetpointLux) {
+              inputSetpointLux.value = data.setpointLuxGeral;
+              inputSetpointLux.setAttribute('data-last-value', data.setpointLuxGeral);
+              console.log('Setpoint Lux Geral carregado:', data.setpointLuxGeral);
+            }
+          }
+          
+          // Carregar dados dos setores se existirem
+          if (data.Setores) {
+            const setorSelecionado = document.getElementById("Setoreselect").value;
+            if (setorSelecionado !== "SemSelecao" && data.Setores[setorSelecionado]) {
+              const dadosSetor = data.Setores[setorSelecionado];
+              
+              // Carregar setpoint de lux do setor se existir
+              const inputSetpointLuxSetor = document.getElementById('inputSetpointLuxSetor');
+              if (inputSetpointLuxSetor && dadosSetor.setpointLux !== undefined) {
+                inputSetpointLuxSetor.value = dadosSetor.setpointLux;
+                inputSetpointLuxSetor.setAttribute('data-last-value', dadosSetor.setpointLux);
+                console.log('Setpoint Lux Setor carregado:', dadosSetor.setpointLux);
+              }
+            }
+          }
+          
+          estadoCarregado = true;
+        })
+        .catch(error => {
+          console.error("Erro ao carregar estado:", error);
+          // Não mostrar toast de erro aqui, pois pode ser spam quando fora da rede
+        });
+
+      // Carregar agendamentos apenas se conectado
+      if (statusConexao) {
+        carregarAgendamentos();
+      }
+    }
+    
+    // ====== FUNÇÃO UNIFICADA PARA ATIVAR MODO ======
+    function ativarModo(modo) {
+      // VALIDAÇÃO: No modo por setores, verificar se um setor está selecionado
+      if (tipoOperacaoAtual === 'setores') {
+        const setorSelecionado = document.getElementById("Setoreselect").value;
+        if (setorSelecionado === "SemSelecao") {
+          toast.warning('Setor Não Selecionado', 'Selecione um setor antes de ativar o modo');
+          return; // Impede a ativação do modo sem setor selecionado
+        }
+      }
+      
+      // Atualizar botões
+      const btnManual = document.getElementById('btnManual');
+      const btnAutomatico = document.getElementById('btnAutomatico');
+      
+      if (modo === 'manual') {
+        btnManual.classList.add('ativo');
+        btnAutomatico.classList.remove('ativo');
+        
+        // Mostrar controles de luminosidade
+        mostrarControlesLuminosidade(document.getElementById('controlesLuminosidade'), true);
+        // Ocultar controles de setpoint lux
+        mostrarControlesLuminosidade(document.getElementById('controlesSetpointLux'), false);
+        mostrarControlesLuminosidade(document.getElementById('controlesSetpointLuxSetor'), false);
+      } else {
+        btnManual.classList.remove('ativo');
+        btnAutomatico.classList.add('ativo');
+        
+        // Ocultar controles de luminosidade
+        mostrarControlesLuminosidade(document.getElementById('controlesLuminosidade'), false);
+        
+        // Mostrar controle de setpoint correto (geral ou setor)
+        if (tipoOperacaoAtual === 'geral') {
+          mostrarControlesLuminosidade(document.getElementById('controlesSetpointLux'), true);
+          mostrarControlesLuminosidade(document.getElementById('controlesSetpointLuxSetor'), false);
+        } else {
+          mostrarControlesLuminosidade(document.getElementById('controlesSetpointLux'), false);
+          mostrarControlesLuminosidade(document.getElementById('controlesSetpointLuxSetor'), true);
+        }
+      }
+      
+      // Enviar comando baseado no tipo de operação
+      if (tipoOperacaoAtual === 'geral') {
+        // Controle geral: afeta todos os setores
+        fetch('/api/modo', {
+          method: 'POST',
+          body: JSON.stringify({ modo: modo }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            const modoTexto = modo === 'manual' ? 'Manual' : 'Automático';
+            toast.success(`Modo ${modoTexto} Ativado (Geral)`, `Todos os setores foram alterados para o modo ${modo}`);
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          const modoTexto = modo === 'manual' ? 'Manual' : 'Automático';
+          toast.error(`Erro ao Ativar ${modoTexto}`, 'Verifique a conexão com o sistema');
+        });
+      } else {
+        // Controle por setores: afeta apenas o setor selecionado
+        const setorSelecionado = document.getElementById("Setoreselect").value;
+        const setorNome = getSetorNomeById(setorSelecionado);
+        
+        fetch('/api/modo_setor', {
+          method: 'POST',
+          body: JSON.stringify({ Setor: setorSelecionado, modo: modo }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            const modoTexto = modo === 'manual' ? 'Manual' : 'Automático';
+            toast.success(`Modo ${modoTexto} Ativo (Setor)`, `${setorNome} alterado para controle ${modo}`);
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          toast.error('Erro no Setor', `Não foi possível alterar o modo do ${setorNome}`);
+        });
+      }
+    }
+
+    // ====== FUNÇÃO PARA ATUALIZAR SLIDER UNIFICADO ======
+    function atualizarSlider(valor) {
+      let v = parseInt(valor);
+      if (isNaN(v)) v = 0;
+      if (v < 0) v = 0;
+      if (v > 100) v = 100;
+
+      // VALIDAÇÃO: No modo por setores, verificar se um setor está selecionado
+      if (tipoOperacaoAtual === 'setores') {
+        const setorSelecionado = document.getElementById("Setoreselect").value;
+        if (setorSelecionado === "SemSelecao") {
+          toast.warning('Setor Não Selecionado', 'Selecione um setor antes de ajustar o brilho');
+          return; // Impede o ajuste sem setor selecionado
+        }
+      }
+
+      document.getElementById('inputLuminosidade').value = v;
+      document.getElementById('inputLuminosidade').setAttribute('data-last-value', v);
+      document.getElementById('sliderLuminosidade').value = v;
+      document.getElementById('valorLuminosidade').textContent = v + '%';
+      atualizarCorSlider(document.getElementById('sliderLuminosidade'));
+
+      // Enviar comando baseado no tipo de operação
+      if (tipoOperacaoAtual === 'geral') {
+        // Controle geral: afeta todos os setores
+        fetch('/api/brilho', {
+          method: 'POST',
+          body: JSON.stringify({ brilho: v }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            // Notificação removida - ajuste silencioso
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          toast.error('Erro ao Alterar Brilho', 'Verifique a conexão com o sistema');
+        });
+      } else {
+        // Controle por setores: afeta apenas o setor selecionado
+        const setorSelecionado = document.getElementById("Setoreselect").value;
+        const setorNome = getSetorNomeById(setorSelecionado);
+        
+        fetch('/api/brilho_setor', {
+          method: 'POST',
+          body: JSON.stringify({ Setor: setorSelecionado, brilho: v }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            // Notificação removida - ajuste silencioso
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          toast.error('Erro no Setor', `Não foi possível alterar o brilho do ${setorNome}`);
+        });
+      }
+    }
+
+    // ====== FUNÇÃO AUXILIAR PARA OBTER NOME DO SETOR ======
+    function getSetorNomeById(id) {
+      switch(id) {
+        case "1": return "Estacionamento";
+        case "2": return "Loja";
+        case "3": return "Depósito";
+        default: return "Setor Desconhecido";
+      }
+    }
+
+// Função Para Verificar Conexão Com a Rede WiFi Específica
+    async function verificarConexaoViza() {
+      // Se já sabemos que não há internet, não adianta tentar
+      if (!navigator.onLine) {
+        return false;
+      }
+
+      try {
+        // Verificar se é possível acessar o sistema Viza
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000); // Aumentado para 4 segundos
+
+        const response = await fetch('/estado', {
+          method: 'GET',
+          signal: controller.signal,
+          cache: 'no-cache'
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          tentativasFalhas = 0; // Resetar contador em caso de sucesso
+          return true;
+        } else {
+          tentativasFalhas++;
+          return false;
+        }
+      } catch (error) {
+        tentativasFalhas++;
+        console.log(`Erro na verificação de conexão (tentativa ${tentativasFalhas}):`, error.name);
+        // Só retorna 'false' de fato após 3 tentativas
+        if (tentativasFalhas < 6) {
+          return true; // Finge que está online para ser mais tolerante
+        }
+        console.log('Erro na verificação de conexão:', error.name);
+        return false;
+      }
+    }
+
+
+    // Função Para Atualizar Status da Conexão
+    async function atualizarStatusConexao() {
+      if (verificandoConexao) return;
+      verificandoConexao = true;
+
+      try {
+        const conectadoViza = await verificarConexaoViza();
+        const statusElement = document.getElementById('status-conexao');
+        const statusText = document.getElementById('status-text');
+        
+        if (statusElement) {
+          if (conectadoViza && !statusConexao) {
+            // Conectou à rede Viza
+            statusText.textContent = 'Conectado';
+            statusElement.className = 'status-conexao status-online';
+            
+            // Remover toast de conexão perdida se existir
+            if (toastConexaoId) {
+              toast.remove(toastConexaoId);
+              toastConexaoId = null;
+            }
+            
+            toast.success('Conectado ao Sistema Viza', 'Sistema de iluminação disponível via Raspberry PI');
+            setTimeout(() => carregarEstado(), 500);
+
+          } else if (!conectadoViza && statusConexao) {
+            // Perdeu conexão com a rede Viza
+            statusText.textContent = 'Desconectado';
+            statusElement.className = 'status-conexao status-offline';
+            
+            toastConexaoId = toast.error('Sistema Desconectado', 'Verifique a conexão com o Raspberry PI ou ative a VPN WireGuard', {
+              persistent: true,
+              action: {
+                text: 'Tentar Novamente',
+                callback: () => {
+                  atualizarStatusConexao();
+                  toast.info('Verificando...', 'Tentando conectar ao sistema');
+                }
+              }
+            });
+          }
+          
+          statusConexao = conectadoViza;
+        }
+      } catch (error) {
+        console.error('Erro ao verificar status:', error);
+      } finally {
+        verificandoConexao = false;
+      }
+    }
+
+// [BLOCO DE CÓDIGO MODIFICADO EM Index.html]
+    function enviarBrilho(valor) {
+      if (!estadoCarregado || !statusConexao) return;
+
+      let v = parseInt(valor);
+      if (isNaN(v)) v = 0;
+      if (v < 0) v = 0;
+      if (v > 100) v = 100;
+
+      // O feedback visual já é feito em 'atualizarSliderGeral', 
+      // esta função agora apenas envia o comando.
+
+      fetch('/brilho', {
+        method: 'POST',
+        body: JSON.stringify({ brilho: v }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => {
+        if (response.ok) {
+          // Descomentado e melhorado o toast de sucesso!
+          // toast.success('Luminosidade Geral Ajustada', `Brilho de todos os setores alterado para ${v}%`);
+        } else {
+          throw new Error('Erro na resposta do servidor');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        // Removido 'if (statusConexao)' para sempre mostrar o erro se a ação falhar
+        toast.error('Erro no Ajuste Geral', 'Não foi possível alterar a luminosidade');
+      });
+    }
+
+    // Função Para Atualizar Slider Geral (e refletir nos setores)
+    function atualizarSliderGeral(valor) {
+      let v = parseInt(valor);
+      if (isNaN(v)) v = 0;
+      if (v < 0) v = 0;
+      if (v > 100) v = 100;
+
+      // 1. Atualiza os controles GERAIS
+      document.getElementById('inputLuminosidade').value = v;
+      document.getElementById('inputLuminosidade').setAttribute('data-last-value', v);
+      const sliderGeral = document.getElementById('sliderLuminosidade');
+      if (sliderGeral) {
+        sliderGeral.value = v;
+        atualizarCorSlider(sliderGeral);
+      }
+      const valorLuminosidade = document.getElementById('valorLuminosidade');
+      if (valorLuminosidade) {
+        valorLuminosidade.textContent = v + '%';
+      }
+
+      // 2. Reflete a mudança nos controles de SETOR (se um estiver selecionado)
+      // Comentado: elementos não existem mais na nova interface
+      // const setorSelecionado = document.getElementById("Setoreselect").value;
+      // if (setorSelecionado && setorSelecionado !== "SemSelecao") {
+      //     document.getElementById('inputLuminosidadeSetor').value = v;
+      //     document.getElementById('inputLuminosidadeSetor').setAttribute('data-last-value', v);
+      // }
+
+      // 3. Envia o comando para o backend
+      enviarBrilho(v);
+    }
+    
+    // Função Exibir Manual (DESATIVADA - interface reformulada)
+    function exibirManual() {
+      // Função antiga removida - interface agora usa ativarModo()
+      console.log('[INFO] exibirManual() chamada mas desativada');
+    }
+    
+    // Função Exibir Automático (DESATIVADA - interface reformulada)
+    function exibirAutomatico() {
+      // Função antiga removida - interface agora usa ativarModo()
+      console.log('[INFO] exibirAutomatico() chamada mas desativada');
+    }
+    
+    // Função Exibir Brilho (DESATIVADA - interface reformulada)
+    function exibirBrilho(valor) {
+      // Função antiga removida - valores agora carregados via carregarEstado()
+      console.log('[INFO] exibirBrilho() chamada com valor:', valor, '- mas desativada');
+    }
+    
+    // Função Do Modo Manual Por Setores (DESATIVADA - interface reformulada)
+    function ativarManualSetor() {
+      // Função antiga removida - interface agora usa ativarModo('manual')
+      console.log('[INFO] ativarManualSetor() chamada mas desativada - use ativarModo("manual")');
+
+      const setorSelecionado = document.getElementById("Setoreselect").value;
+      if (setorSelecionado !== "SemSelecao") {
+        const setorNome = getSetorNomeById(setorSelecionado);
+        
+        fetch('/api/modo_setor', {
+          method: 'POST',
+          body: JSON.stringify({ Setor: setorSelecionado, modo: 'manual' }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            toast.success('Modo Manual Ativo', `${setorNome} alterado para controle manual`);
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          toast.error('Erro no Setor', `Não foi possível alterar o modo do ${setorNome}`);
+        });
+      } else {
+        toast.warning('Setor Não Selecionado', 'Selecione um setor para ativar o modo manual');
+      }
+    }
+    
+    // Função Do Modo Automático Por Setores (DESATIVADA - interface reformulada)
+    function ativarAutomaticoSetor() {
+      // Função antiga removida - interface agora usa ativarModo('automatico')
+      console.log('[INFO] ativarAutomaticoSetor() chamada mas desativada - use ativarModo("automatico")');
+
+      const setorSelecionado = document.getElementById("Setoreselect").value;
+      if (setorSelecionado !== "SemSelecao") {
+        const setorNome = getSetorNomeById(setorSelecionado);
+        
+        fetch('/api/modo_setor', {
+          method: 'POST',
+          body: JSON.stringify({ Setor: setorSelecionado, modo: 'automatico' }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            toast.info('Modo Automático Ativo', `${setorNome} funcionando automaticamente`);
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          toast.error('Erro no Setor', `Não foi possível alterar o modo do ${setorNome}`);
+        });
+      } else {
+        toast.warning('Setor Não Selecionado', 'Selecione um setor para ativar o modo automático');
+      }
+    }
+    
+    // Função Para Atualizar Slider Por Setores
+    function atualizarSliderSetor(valor) {
+      let v = parseInt(valor);
+      if (isNaN(v)) v = 0;
+      if (v < 0) v = 0;
+      if (v > 100) v = 100;
+
+      // Comentado: elementos não existem mais na nova interface
+      // document.getElementById('inputLuminosidadeSetor').value = v;
+      // document.getElementById('inputLuminosidadeSetor').setAttribute('data-last-value', v);
+
+      const setorSelecionado = document.getElementById("Setoreselect").value;
+      if (setorSelecionado !== "SemSelecao") {
+        const setorNome = getSetorNomeById(setorSelecionado);
+        
+        fetch('/api/brilho_setor', {
+          method: 'POST',
+          body: JSON.stringify({ Setor: setorSelecionado, brilho: v }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            // toast.success('Brilho Ajustado', `${setorNome}: ${v}% de luminosidade`);
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          toast.error('Erro no Ajuste', `Falha ao alterar brilho do ${setorNome}`);
+        });
+      }
+    }
+    
+    // Função Para Atualizar Setpoint de Lux Por Setores
+    function atualizarSetpointLuxSetor(valor) {
+      console.log('[DEBUG INTERFACE] Função atualizarSetpointLuxSetor chamada com valor:', valor);
+      
+      let v = parseInt(valor);
+      if (isNaN(v)) v = 300;
+      if (v < 300) v = 300;
+      if (v > 1000) v = 1000;
+
+      document.getElementById('inputSetpointLuxSetor').value = v;
+      document.getElementById('inputSetpointLuxSetor').setAttribute('data-last-value', v);
+
+      const setorSelecionado = document.getElementById("Setoreselect").value;
+      console.log('[DEBUG INTERFACE] Setor selecionado:', setorSelecionado);
+      
+      if (setorSelecionado !== "SemSelecao") {
+        const setorNome = getSetorNomeById(setorSelecionado);
+        console.log('[DEBUG INTERFACE] Nome do setor:', setorNome);
+
+        const payload = { Setor: setorSelecionado, setpoint_lux: v };
+        console.log('[DEBUG INTERFACE] Enviando para /setpoint_lux_Setor:', JSON.stringify(payload));
+        
+        fetch('/api/setpoint_lux_setor', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          console.log('[DEBUG INTERFACE] Resposta recebida:', response.status, response.ok);
+          if (response.ok) {
+            toast.success('Setpoint Ajustado', `${setorNome}: ${v} lux (modo automático)`);
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('[DEBUG INTERFACE] Erro ao enviar:', error);
+          toast.error('Erro no Ajuste', `Falha ao alterar setpoint de lux do ${setorNome}`);
+        });
+      } else {
+        console.log('[DEBUG INTERFACE] Nenhum setor selecionado, não enviando comando');
+      }
+    }
+
+    // Função Para Atualizar Setpoint de Lux Geral
+    function atualizarSetpointLuxGeral(valor) {
+      console.log('[DEBUG INTERFACE] Função atualizarSetpointLuxGeral chamada com valor:', valor);
+      
+      let v = parseInt(valor);
+      if (isNaN(v)) v = 300;
+      if (v < 300) v = 300;
+      if (v > 1000) v = 1000;
+
+      document.getElementById('inputSetpointLuxGeral').value = v;
+      document.getElementById('inputSetpointLuxGeral').setAttribute('data-last-value', v);
+
+      const payload = { setpoint_lux: v };
+      console.log('[DEBUG INTERFACE] Enviando para /setpoint_lux_Geral:', JSON.stringify(payload));
+      
+      fetch('/api/setpoint_lux_geral', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => {
+        console.log('[DEBUG INTERFACE] Resposta recebida:', response.status, response.ok);
+        if (response.ok) {
+          toast.success('Setpoint Geral Ajustado', `Todas as luminárias: ${v} lux (modo automático)`);
+        } else {
+          throw new Error('Erro na resposta do servidor');
+        }
+      })
+      .catch(error => {
+        console.error('[DEBUG INTERFACE] Erro ao enviar:', error);
+        toast.error('Erro no Ajuste', 'Falha ao alterar setpoint de lux geral');
+      });
+    }
+
+    // Função Para Atualizar Cor Do Slider
+    function atualizarCorSlider(slider) {
+      if (!slider) {
+        console.warn('[AVISO] atualizarCorSlider chamada com elemento null');
+        return;
+      }
+      const valor = slider.value;
+      const porcentagem = valor;
+      slider.style.background = `linear-gradient(to right, #8e44ad  0%, #8e44ad  ${porcentagem}%, #8e44ad  ${porcentagem}%, #e0e0e0 100%)`;
+    }
+    
+    // Função Feedback Agendamento
+    function mostrarStatus(mensagem, tipo = 'success') {
+      const status = document.getElementById('statusAgendamento');
+      status.textContent = mensagem;
+      status.className = `status-message show status-${tipo}`;
+      
+      setTimeout(() => {
+        status.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Função Para Agendar Hórarios Para Controle
+    function agendarSetores() {
+      const setor   = document.getElementById('SetorHorario').value;
+      const ligar   = document.getElementById('horaLigar').value;
+      const desligar= document.getElementById('horaDesligar').value;
+      const brilho  = parseInt(document.getElementById('brilhoLigar').value) || 100;
+
+      if (!setor) {
+        toast.warning('Seleção Necessária', 'Selecione um setor para criar o agendamento');
+        return;
+      }
+      if (!ligar && !desligar) {
+        toast.warning('Horário Necessário', 'Informe pelo menos um horário (ligar ou desligar)');
+        return;
+      }
+
+      const setorNome = getSetorNomeById(setor);
+      const tarefas = [];
+
+      if (ligar) {
+        const [hL, mL] = ligar.split(':').map(v=>parseInt(v));
+        tarefas.push(
+          fetch('/api/agendar_simples', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ setor, acao:'ligar', hora:hL, minuto:mL, brilho })
+          })
+        );
+      }
+      if (desligar) {
+        const [hD, mD] = desligar.split(':').map(v=>parseInt(v));
+        tarefas.push(
+          fetch('/api/agendar_simples', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ setor, acao:'desligar', hora:hD, minuto:mD })
+          })
+        );
+      }
+
+      Promise.all(tarefas)
+        .then(responses => {
+          if (responses.every(r=>r.ok)) {
+            let mensagem = `${setorNome} agendado`;
+            if (ligar && desligar) {
+              mensagem += ` - Liga às ${ligar}, desliga às ${desligar}`;
+            } else if (ligar) {
+              mensagem += ` para ligar às ${ligar}`;
+            } else {
+              mensagem += ` para desligar às ${desligar}`;
+            }
+            
+            toast.success('Agendamento Criado', mensagem);
+            carregarAgendamentos();
+            
+            // Limpar campos
+            document.getElementById('horaLigar').value = '';
+            document.getElementById('horaDesligar').value = '';
+            document.getElementById('brilhoLigar').value = '100';
+          } else {
+            throw new Error();
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          toast.error('Erro no Agendamento', `Falha ao agendar ${setorNome}`);
+        });
+    }
+
+    // Função Carregar Agendamentos 
+    function carregarAgendamentos() {
+      fetch('/api/listar_agendamentos')
+        .then(response => response.json())
+        .then(data => {
+          const tbody = document.querySelector('#tabelaAgendamentos tbody');
+          tbody.innerHTML = '';
+          
+          data.forEach((agendamento, index) => {
+            const tr = document.createElement('tr');
+            
+            const setorNome = getSetorNome(agendamento.setor);
+            const ligar = agendamento.horaLigar >= 0 ? 
+              `${String(agendamento.horaLigar).padStart(2,'0')}:${String(agendamento.minutoLigar).padStart(2,'0')}` : '--:--';
+            const desligar = agendamento.horaDesligar >= 0 ? 
+              `${String(agendamento.horaDesligar).padStart(2,'0')}:${String(agendamento.minutoDesligar).padStart(2,'0')}` : '--:--';
+            
+            tr.innerHTML = `
+              <td>${getSetorIcon(agendamento.setor)} ${setorNome}</td>
+              <td>🌅 ${ligar}</td>
+              <td>🌙 ${desligar}</td>
+              <td>💡 ${agendamento.brilhoLigar}%</td>
+              <td><span class="status-badge ${agendamento.ativo ? 'ativo' : 'inativo'}">${agendamento.ativo ? 'ATIVO' : 'INATIVO'}</span></td>
+              <td>
+                <button class="btn btn-toggle" onclick="toggleAgendamento('${agendamento.setor}', ${!agendamento.ativo})">${agendamento.ativo ? '⏸️ Desativar' : '▶️ Ativar'}</button>
+                <button class="btn btn-delete" onclick="limparAgendamento('${agendamento.setor}')">🗑️ Limpar</button>
+              </td>
+            `;
+            
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(error => {
+          console.error('Erro ao carregar agendamentos:', error);
+          toast.error('Erro nos Agendamentos', 'Não foi possível carregar a lista de agendamentos');
+        });
+    }
+    
+    // Função Para Ler Setor Selecionado -> String
+    function getSetorNome(setor) {
+      const nomes = {
+        'Estacionamento': 'Estacionamento',
+        'Loja': 'Loja',
+        'Deposito': 'Depósito'
+      };
+      return nomes[setor] || setor;
+    }
+    
+    // Função Para Ler Setor Selecionado -> Int
+    function getSetorNomeById(id) {
+      const nomes = {
+        '1': 'Estacionamento',
+        '2': 'Loja', 
+        '3': 'Depósito'
+      };
+      return nomes[id] || `Setor ${id}`;
+    }
+
+    // Função Para Ler Setor Selecionado -> Icon
+    function getSetorIcon(setor) {
+      const icons = {
+        'Estacionamento': '🚗',
+        'Loja': '🏪',
+        'Deposito': '📦'
+      };
+      return icons[setor] || '🏢';
+    }
+    
+    // Função Para Verificar Status Ativo ou Inativo
+    function toggleAgendamento(setor, ativo) {
+      const setorNome = getSetorNome(setor);
+      
+      fetch('/api/toggle_agendamento_simples', {
+        method: 'POST',
+        body: JSON.stringify({ setor: setor, ativo: ativo }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => {
+        if (response.ok) {
+          const acao = ativo ? 'ativado' : 'desativado';
+          toast.success(`Agendamento ${acao.charAt(0).toUpperCase() + acao.slice(1)}`, `${setorNome}: agendamento ${acao}`);
+          carregarAgendamentos();
+        } else {
+          throw new Error('Erro na resposta do servidor');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        toast.error('Erro na Operação', `Falha ao alterar status do agendamento de ${setorNome}`);
+      });
+    }
+    
+    // Função Para Limpar Agendamento 
+    function limparAgendamento(setor) {
+      const setorNome = getSetorNome(setor);
+      
+      if (confirm(`Tem certeza que deseja limpar o agendamento do ${setorNome}?`)) {
+        const dados1 = { setor: setor, acao: 'ligar', hora: -1, minuto: -1, brilho: 100 };
+        const dados2 = { setor: setor, acao: 'desligar', hora: -1, minuto: -1 };
+        
+        Promise.all([
+          fetch('/api/agendar_simples', {
+            method: 'POST',
+            body: JSON.stringify(dados1),
+            headers: { 'Content-Type': 'application/json' }
+          }),
+          fetch('/api/agendar_simples', {
+            method: 'POST',
+            body: JSON.stringify(dados2),
+            headers: { 'Content-Type': 'application/json' }
+          }),
+          fetch('/api/toggle_agendamento_simples', {
+            method: 'POST',
+            body: JSON.stringify({ setor: setor, ativo: false }),
+            headers: { 'Content-Type': 'application/json' }
+          })
+        ])
+        .then(responses => {
+          if (responses.every(r => r.ok)) {
+            toast.success('Agendamento Removido', `${setorNome}: agendamento limpo com sucesso`);
+            carregarAgendamentos();
+          } else {
+            throw new Error('Erro nas respostas do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          toast.error('Erro ao Limpar', `Falha ao remover agendamento de ${setorNome}`);
+        });
+      }
+    }
+    
+    // Função Feedback Sincronismo Hórario
+    function carregarHorarioAtual() {
+      fetch('/api/horario_atual')
+        .then(response => {
+          console.log('Status resposta horário:', response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log('Dados do RTC recebidos:', data);
+          const hora = String(data.hora).padStart(2, '0');
+          const minuto = String(data.minuto).padStart(2, '0');
+          const segundo = String(data.segundo).padStart(2, '0');
+          document.getElementById('horarioAtual').textContent = `${hora}:${minuto}:${segundo}`;
+        })
+        .catch(error => {
+          console.error('Erro ao carregar horário:', error);
+          document.getElementById('horarioAtual').textContent = '--:--:--';
+          // Não mostrar toast para erro de horário, pois é muito frequente
+        });
+    }
+    
+    //  Função Para Sincronizar Hórario Do RTC
+    function sincronizarRTC() {
+      const agora = new Date();
+      
+      const dadosHorario = {
+        hora: agora.getHours(),
+        minuto: agora.getMinutes(),
+        segundo: agora.getSeconds(),
+        dia: agora.getDate(),
+        mes: agora.getMonth() + 1,
+        ano: agora.getFullYear()
+      };
+      
+      console.log('🕐 Horário do navegador:', agora.toLocaleTimeString());
+      console.log('📤 Enviando para RTC:', dadosHorario);
+      
+      // Mostrar feedback visual imediato
+      const btnSync = document.getElementById('btnSincronizar');
+      const originalText = btnSync.innerHTML;
+      btnSync.innerHTML = '🔄 <span class="loading"></span>';
+      btnSync.disabled = true;
+      
+      fetch('/api/sincronizar_rtc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dadosHorario)
+      })
+      .then(response => {
+        console.log('📡 Status da sincronização:', response.status);
+        console.log('📡 Response OK:', response.ok);
+        return response.text();
+      })
+      .then(data => {
+        console.log('📥 Resposta do servidor:', data);
+        
+        // Restaurar botão
+        btnSync.innerHTML = originalText;
+        btnSync.disabled = false;
+        
+        toast.success('Horário Sincronizado', 'Relógio do sistema atualizado com sucesso');
+        mostrarStatusSincronizacao('Sincronizado!', 'success');
+        
+        console.log('⏳ Aguardando 2s para verificar...');
+        setTimeout(() => {
+          console.log('🔄 Verificando horário após sincronização...');
+          carregarHorarioAtual();
+        }, 2000);
+      })
+      .catch(error => {
+        console.error('❌ Erro ao sincronizar:', error);
+        
+        // Restaurar botão
+        btnSync.innerHTML = originalText;
+        btnSync.disabled = false;
+        
+        toast.error('Erro na Sincronização', 'Não foi possível sincronizar o relógio do sistema');
+        mostrarStatusSincronizacao('Erro na sincronização', 'error');
+      });
+    }
+
+    // Feedback Da Sincronização Do RTC
+    function mostrarStatusSincronizacao(mensagem, tipo) {
+      const status = document.getElementById('statusSincronizacao');
+      status.textContent = mensagem;
+      status.className = `sync-status show ${tipo}`;
+      
+      setTimeout(() => {
+        status.classList.remove('show');
+      }, 3000);
+    }
+  
+    // Função Instalar PWA
+    function instalarPWA() {
+      // Detectar se é iOS
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      
+      // Verificar se já está instalado
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        toast.info('App Já Instalado', 'O aplicativo web já está instalado no dispositivo');
+        return;
+      }
+      
+      // Para iOS/Safari - instruções específicas
+      if (isIOS || isSafari) {
+        toast.info('Instalação no iOS', 'No Safari: toque no ícone "Compartilhar" ↗️ e selecione "Adicionar à Tela de Início"', {
+          duration: 12000
+        });
+        mostrarStatusDownload('📱 iOS: Use "Adicionar à Tela de Início" no Safari', 'info');
+        return;
+      }
+      
+      // Para Android/outros navegadores - verificar prompt de instalação
+      if (window.deferredPrompt) {
+        window.deferredPrompt.prompt();
+        window.deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            toast.success('App Instalado', 'Viza Iluminação instalado com sucesso!');
+            mostrarStatusDownload('✅ App web instalado!', 'success');
+          } else {
+            toast.info('Instalação Cancelada', 'Você pode instalar o app a qualquer momento');
+          }
+          window.deferredPrompt = null;
+        });
+      } else {
+        // Fallback para outros navegadores
+        const isChrome = /Chrome/.test(navigator.userAgent);
+        const isEdge = /Edge/.test(navigator.userAgent);
+        
+        if (isChrome) {
+          toast.info('Instalação no Chrome', 'Use o menu (⋮) → "Instalar app" ou "Adicionar à tela inicial"', {
+            duration: 10000
+          });
+        } else if (isEdge) {
+          toast.info('Instalação no Edge', 'Use o menu (⋯) → "Apps" → "Instalar este site como um app"', {
+            duration: 10000
+          });
+        } else {
+          toast.info('Instalação Manual', 'Use o menu do navegador: "Adicionar à tela inicial" ou "Instalar app"', {
+            duration: 8000
+          });
+        }
+        
+        mostrarStatusDownload('💡 Use o menu do navegador para instalar', 'info');
+      }
+    }
+    
+    // Feedback Do Download PWA
+    function mostrarStatusDownload(mensagem, tipo) {
+      const status = document.getElementById('statusDownload');
+      status.textContent = mensagem;
+      status.className = `status-message show status-${tipo}`;
+      
+      setTimeout(() => {
+        status.classList.remove('show');
+      }, 5000);
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      // Inicializar sliders (com verificação de existência)
+      const sliderLuminosidade = document.getElementById('sliderLuminosidade');
+      if (sliderLuminosidade) {
+        atualizarCorSlider(sliderLuminosidade);
+      }
+      
+      // Detectar mudança de setor
+      document.getElementById('Setoreselect').addEventListener('change', function() {
+        const setor = this.value;
+        if (setor !== "SemSelecao") {
+          const setorNome = getSetorNomeById(setor);
+          toast.info('Setor Selecionado', `Controles configurados para ${setorNome}`);
+        }
+        // Comentado: elementos não existem mais na nova interface
+        // else {
+        //   // Ocultar controles quando não há setor selecionado
+        //   mostrarControlesLuminosidade(document.getElementById('luminosidadeSetor'), false);
+        // }
+      });
+
+      // ========== EVENT LISTENERS PARA SETPOINTS COM ENTER ==========
+      
+      // Função auxiliar para configurar eventos de um campo setpoint
+      function configurarCampoSetpoint(elementId, funcaoAtualizacao) {
+        const elemento = document.getElementById(elementId);
+        if (!elemento) return;
+        
+        let processandoAtualizacao = false;
+        let timeoutApagar = null;
+        
+        // Função para processar a atualização uma única vez
+        function processarAtualizacao() {
+          if (processandoAtualizacao) return;
+          
+          const valorAtual = elemento.value;
+          const ultimoValor = elemento.getAttribute('data-last-value');
+          
+          // Se campo vazio, não faz nada ainda (aguarda timeout)
+          if (valorAtual === '' || valorAtual === null) {
+            return;
+          }
+          
+          if (valorAtual !== ultimoValor) {
+            processandoAtualizacao = true;
+            funcaoAtualizacao(valorAtual);
+            elemento.setAttribute('data-last-value', valorAtual);
+            elemento.classList.remove('pending-confirmation');
+            
+            // Reset flag após 500ms
+            setTimeout(() => {
+              processandoAtualizacao = false;
+            }, 500);
+          }
+        }
+        
+        // Evento de input para mostrar indicador visual e gerenciar timeout
+        elemento.addEventListener('input', function() {
+          // Limpar timeout anterior
+          if (timeoutApagar) {
+            clearTimeout(timeoutApagar);
+            timeoutApagar = null;
+          }
+          
+          // Se campo foi apagado, iniciar timeout de 5 minutos
+          if (this.value === '' || this.value === null) {
+            timeoutApagar = setTimeout(() => {
+              const ultimoValor = this.getAttribute('data-last-value');
+              if (ultimoValor) {
+                this.value = ultimoValor;
+                funcaoAtualizacao(ultimoValor);
+              }
+            }, 300000); // 5 minutos = 300000ms
+          }
+          
+          if (this.value !== this.getAttribute('data-last-value')) {
+            this.classList.add('pending-confirmation');
+          } else {
+            this.classList.remove('pending-confirmation');
+          }
+        });
+        
+        // Evento de keypress para Enter (Desktop)
+        elemento.addEventListener('keypress', function(event) {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            processarAtualizacao();
+            this.blur(); // Remove o foco do campo
+          }
+        });
+        
+        // Evento change (Mobile - disparado ao fechar teclado com "concluir")
+        elemento.addEventListener('change', function() {
+          processarAtualizacao();
+        });
+        
+        // Evento de blur (perda de foco) - com pequeno delay para mobile
+        elemento.addEventListener('blur', function() {
+          // Se campo vazio, não faz nada (aguarda timeout de 5 minutos)
+          if (this.value === '' || this.value === null) {
+            return;
+          }
+          
+          // Limpar timeout se usuário preencheu antes de expirar
+          if (timeoutApagar) {
+            clearTimeout(timeoutApagar);
+            timeoutApagar = null;
+          }
+          
+          // Pequeno delay para garantir que 'change' seja processado primeiro no mobile
+          setTimeout(() => {
+            if (!processandoAtualizacao) {
+              processarAtualizacao();
+            }
+          }, 100);
+        });
+      }
+      
+      // Configurar todos os campos de setpoint
+      configurarCampoSetpoint('inputLuminosidade', atualizarSliderGeral);
+      configurarCampoSetpoint('inputLuminosidadeSetor', atualizarSliderSetor);
+      configurarCampoSetpoint('inputSetpointLuxGeral', atualizarSetpointLuxGeral);
+      configurarCampoSetpoint('inputSetpointLuxSetor', atualizarSetpointLuxSetor);
+      
+      // Inicializar data-last-value dos campos com seus valores atuais
+      const camposInicializar = ['inputLuminosidade', 'inputLuminosidadeSetor', 'inputSetpointLuxGeral', 'inputSetpointLuxSetor'];
+      camposInicializar.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo && campo.value) {
+          campo.setAttribute('data-last-value', campo.value);
+        }
+      });
+      
+      // ========== NAVEGAÇÃO BOTTOM MENU ==========
+      initBottomNavigation();
+    });
+    
+    // Função para inicializar navegação do menu inferior
+    function initBottomNavigation() {
+      const currentPath = window.location.pathname;
+      const navItems = document.querySelectorAll('.nav-item');
+      
+      // Remover classe active de todos os itens
+      navItems.forEach(item => item.classList.remove('active'));
+      
+      // Adicionar classe active ao item correspondente à página atual
+      navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPath || (currentPath === '/' && href === '/')) {
+          item.classList.add('active');
+        }
+      });
+      
+      // Adicionar efeito de toque nos itens do menu
+      navItems.forEach(item => {
+        item.addEventListener('touchstart', function() {
+          this.style.transform = 'scale(0.95)';
+        });
+        
+        item.addEventListener('touchend', function() {
+          this.style.transform = 'scale(1)';
+        });
+        
+        item.addEventListener('touchcancel', function() {
+          this.style.transform = 'scale(1)';
+        });
+      });
+    }
+
+    // Atualização de status em tempo real
+    function atualizarStatusTempoReal() {
+      // Verificar status da conexão com a rede Viza a cada 2 segundos
+      setInterval(atualizarStatusConexao, 2000);
+      
+      // Verificar e carregar estado apenas se conectado à rede Viza
+      setInterval(async () => {
+        if (estadoCarregado && statusConexao) {
+          try {
+            const response = await fetch('/api/status', { cache: 'no-cache' });
+            if (response.ok) {
+              // Sistema online - atualizar silenciosamente
+              carregarEstado();
+            }
+          } catch (error) {
+            console.error('Erro na atualização:', error);
+          }
+        }
+      }, 5000); // Verificar estado a cada 5 segundos quando conectado
+    }
+
+    // Monitoramento de rede aprimorado
+    function monitorarConexao() {
+      // Verificar mudanças na conectividade geral
+      window.addEventListener('online', () => {
+        setTimeout(atualizarStatusConexao, 1000); // Aguardar 1 segundo e verificar
+      });
+      
+      window.addEventListener('offline', () => {
+        if (statusConexao) {
+          const statusElement = document.getElementById('status-conexao');
+          const statusText = document.getElementById('status-text');
+          
+          statusText.textContent = 'Desconectado';
+          statusElement.className = 'status-conexao status-offline';
+          
+          toast.warning('Sem Conexão com Internet', 'Verifique sua conectividade', {
+            persistent: true
+          });
+          
+          statusConexao = false;
+        }
+      });
+
+      // Verificar quando a página ganha foco (usuário volta ao app)
+      window.addEventListener('focus', () => {
+        setTimeout(atualizarStatusConexao, 500);
+      });
+
+      // Verificar quando há mudança de visibilidade da página
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          setTimeout(atualizarStatusConexao, 500);
+        }
+      });
+    }
+
+    // Inicializar horário e timers
+    setInterval(carregarHorarioAtual, 1000);
+    carregarHorarioAtual();
+    
+    // Inicializar monitoramento
+    atualizarStatusTempoReal();
+    monitorarConexao();
+    
+    // Verificar status inicial da conexão
+    setTimeout(atualizarStatusConexao, 1000);
+
+    // ========== REGISTRAR SERVICE WORKER (PWA) ==========
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('[PWA] Service Worker registrado com sucesso:', registration.scope);
+            
+            // Verificar atualizações
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  toast.info('Atualização Disponível', 'Uma nova versão está disponível. Recarregue a página.', {
+                    action: {
+                      text: 'Recarregar',
+                      callback: () => window.location.reload()
+                    }
+                  });
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.error('[PWA] Erro ao registrar Service Worker:', error);
+          });
+      });
+    }
+
+    // ========== DETECTAR SE É PWA INSTALADO ==========
+    window.addEventListener('load', () => {
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        console.log('[PWA] App instalado e rodando em modo standalone');
+        // Pode adicionar analytics ou comportamento específico para PWA instalado
+      }
+    });
+
+    // ========== PROMPT DE INSTALAÇÃO PWA ==========
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      console.log('[PWA] Prompt de instalação disponível');
+      
+      // Pode mostrar um botão de instalação customizado aqui
+      // toast.info('App Instalável', 'Instale o app para acesso rápido', {
+      //   action: {
+      //     text: 'Instalar',
+      //     callback: () => {
+      //       if (deferredPrompt) {
+      //         deferredPrompt.prompt();
+      //         deferredPrompt.userChoice.then((choiceResult) => {
+      //           if (choiceResult.outcome === 'accepted') {
+      //             toast.success('App Instalado', 'Acesse via ícone na tela inicial');
+      //           }
+      //           deferredPrompt = null;
+      //         });
+      //       }
+      //     }
+      //   }
+      // });
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('[PWA] App instalado com sucesso');
+      toast.success('App Instalado', 'Sistema Viza instalado com sucesso!');
+      deferredPrompt = null;
+    });
+
+    // ========== FUNÇÕES DE REINICIALIZAÇÃO ==========
+
+    // Função para reiniciar o Mestre
+    function reiniciarMestre() {
+      if (!statusConexao) {
+        toast.error('Sem Conexão', 'Conecte-se ao sistema para reiniciar');
+        return;
+      }
+
+      if (confirm('⚠️ Tem certeza que deseja reiniciar o Mestre?\n\nIsto irá reiniciar o arquivo Mestre.ino e temporariamente desconectar o sistema.')) {
+        const btn = document.getElementById('btnReiniciarMestre');
+        const originalText = btn.innerHTML;
+
+        // Mostrar loading no botão
+        btn.innerHTML = '🔄 <span class="loading"></span> Reiniciando...';
+        btn.disabled = true;
+
+        fetch('/api/reiniciar_mestre', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            toast.success('Mestre Reiniciando', 'Sistema Mestre.ino será reiniciado em alguns segundos');
+            mostrarStatusReinicializacao('🔄 Mestre reiniciando... Aguarde reconexão', 'info');
+
+            // Aguardar alguns segundos e tentar reconectar
+            setTimeout(() => {
+              toast.info('Tentando Reconectar', 'Verificando se o sistema voltou online...');
+              atualizarStatusConexao();
+            }, 10000); // 10 segundos
+
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao reiniciar mestre:', error);
+          toast.error('Erro na Reinicialização', 'Falha ao reiniciar o sistema Mestre');
+          mostrarStatusReinicializacao('❌ Falha ao reiniciar o Mestre', 'error');
+        })
+        .finally(() => {
+          // Restaurar botão após 15 segundos
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }, 15000);
+        });
+      }
+    }
+
+    // Função para reiniciar o Escravo
+    function reiniciarEscravo() {
+      if (!statusConexao) {
+        toast.error('Sem Conexão', 'Conecte-se ao sistema para reiniciar');
+        return;
+      }
+
+      if (confirm('⚠️ Tem certeza que deseja reiniciar o Escravo?\n\nIsto irá reiniciar o sistema escravo conectado ao Mestre.')) {
+        const btn = document.getElementById('btnReiniciarEscravo');
+        const originalText = btn.innerHTML;
+
+        // Mostrar loading no botão
+        btn.innerHTML = '🔄 <span class="loading"></span> Reiniciando...';
+        btn.disabled = true;
+
+        fetch('/api/reset_escravo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+          if (response.ok) {
+            toast.success('Escravo Reiniciando', 'Sistema escravo será reiniciado remotamente');
+            mostrarStatusReinicializacao('🔄 Escravo reiniciando... Aguarde alguns segundos', 'info');
+
+            // Aguardar alguns segundos
+            setTimeout(() => {
+              toast.info('Reinicialização Concluída', 'Sistema escravo deve estar operacional');
+              mostrarStatusReinicializacao('✅ Escravo reiniciado com sucesso', 'success');
+            }, 8000); // 8 segundos
+
+          } else {
+            throw new Error('Erro na resposta do servidor');
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao reiniciar escravo:', error);
+          toast.error('Erro na Reinicialização', 'Falha ao reiniciar o sistema Escravo');
+          mostrarStatusReinicializacao('❌ Falha ao reiniciar o Escravo', 'error');
+        })
+        .finally(() => {
+          // Restaurar botão após 10 segundos
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }, 10000);
+        });
+      }
+    }
+
+    // Função para mostrar status das reinicializações
+    function mostrarStatusReinicializacao(mensagem, tipo = 'info') {
+      const status = document.getElementById('statusReinicializacao');
+      status.textContent = mensagem;
+      status.className = `status-message show status-${tipo}`;
+
+      setTimeout(() => {
+        status.classList.remove('show');
+      }, 8000); // Mostrar por mais tempo para reinicializações
+    }
+
+  </script>
+</body>
+</html>

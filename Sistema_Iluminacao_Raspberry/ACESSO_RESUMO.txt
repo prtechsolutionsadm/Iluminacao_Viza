@@ -1,0 +1,239 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║   📡 ACESSO AO SISTEMA - CONFIGURAÇÃO VIZA                      ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+🎯 CONFIGURAÇÃO ESCOLHIDA:
+
+✅ Raspberry conecta na WiFi existente: "Rede_Viza"
+✅ Hostname personalizado: "iluminacao-viza"
+✅ Acesso via: http://iluminacao-viza.local
+❌ NÃO criar Access Point próprio
+
+═══════════════════════════════════════════════════════════════════
+
+🔧 DURANTE A INSTALAÇÃO (setup.sh)
+
+O script vai perguntar:
+
+┌─────────────────────────────────────────────┐
+│ Hostname atual: raspberrypi                 │
+│                                             │
+│ Deseja alterar o hostname? [s/N]: S        │
+│ Novo hostname [iluminacao-viza]: (Enter)   │
+│                                             │
+│ ✓ Hostname configurado: iluminacao-viza    │
+│ ⚠ Sistema acessível em:                    │
+│   http://iluminacao-viza.local             │
+└─────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+📱 COMO ACESSAR
+
+1️⃣ REDE LOCAL (Escritório Viza)
+
+Pré-requisito: Estar conectado na mesma WiFi (Rede_Viza)
+
+Acesso:
+http://iluminacao-viza.local
+
+Com HTTPS (após configurar):
+https://iluminacao-viza.local
+
+SSH:
+ssh pi@iluminacao-viza.local
+
+─────────────────────────────────────────────
+
+2️⃣ VPN WIREGUARD (Acesso Remoto)
+
+De qualquer lugar (celular com 4G, casa, etc)
+
+Acesso:
+http://10.0.0.1
+https://10.0.0.1 (com HTTPS)
+
+Configurar:
+sudo ./wireguard_setup.sh
+
+─────────────────────────────────────────────
+
+3️⃣ VIA IP DIRETO (alternativa)
+
+Se .local não funcionar:
+
+Descobrir IP:
+hostname -I
+Resultado exemplo: 192.168.1.150
+
+Acesso:
+http://192.168.1.150
+
+═══════════════════════════════════════════════════════════════════
+
+✅ HOSTNAME JÁ CONFIGURADO NO setup.sh
+
+Durante a instalação:
+sudo ./setup.sh
+
+O script vai:
+1. Perguntar se quer alterar hostname
+2. Sugerir padrão: iluminacao-viza
+3. Configurar automaticamente
+4. Informar URL de acesso
+
+═══════════════════════════════════════════════════════════════════
+
+🔧 ALTERAR HOSTNAME DEPOIS (se necessário)
+
+Se já instalou e quer mudar depois:
+
+Opção A - Script Automático:
+sudo ./scripts/setup_hostname.sh
+
+Opção B - Manual:
+sudo hostnamectl set-hostname iluminacao-viza
+sudo nano /etc/hosts
+# Alterar linha: 127.0.1.1 iluminacao-viza
+sudo reboot
+
+═══════════════════════════════════════════════════════════════════
+
+📊 COMPARAÇÃO
+
+┌────────────────────┬──────────────────────┬──────────────────┐
+│ Método             │ URL de Acesso        │ Quando Usar      │
+├────────────────────┼──────────────────────┼──────────────────┤
+│ Hostname (.local)  │ iluminacao-viza.local│ Rede local       │
+│ VPN WireGuard      │ 10.0.0.1             │ Acesso remoto    │
+│ IP Direto          │ 192.168.1.XXX        │ Alternativa      │
+└────────────────────┴──────────────────────┴──────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+🎯 RECOMENDAÇÃO PARA VIZA
+
+NO ESCRITÓRIO:
+- Conectar na Rede_Viza
+- Acessar: http://iluminacao-viza.local
+- Instalar PWA no celular/desktop
+
+TÉCNICO EM CASA/CAMPO:
+- Ativar VPN WireGuard
+- Acessar: http://10.0.0.1
+- Controlar sistema remotamente
+
+═══════════════════════════════════════════════════════════════════
+
+✨ VANTAGENS DA CONFIGURAÇÃO
+
+✅ URL amigável e profissional
+✅ Fácil de lembrar e digitar
+✅ Não precisa decorar IP
+✅ Funciona em qualquer dispositivo
+✅ mDNS automático (.local)
+✅ VPN para acesso remoto
+✅ Seguro e criptografado
+
+═══════════════════════════════════════════════════════════════════
+
+🔐 CONFIGURAR HTTPS (Opcional mas Recomendado)
+
+Após instalação:
+sudo ./scripts/setup_https.sh
+
+Escolher:
+1 - Certificado auto-assinado (rede local)
+2 - Let's Encrypt (produção)
+
+Acesso com HTTPS:
+https://iluminacao-viza.local
+
+═══════════════════════════════════════════════════════════════════
+
+📱 INSTALAR COMO PWA
+
+1. Acessar: http://iluminacao-viza.local
+2. Menu → "Adicionar à tela inicial"
+3. Ícone criado
+4. App instalado! 🎉
+
+Funciona:
+✅ Android
+✅ iOS
+✅ Windows
+✅ Mac
+✅ Linux
+
+═══════════════════════════════════════════════════════════════════
+
+🧪 TESTAR ACESSO
+
+Após instalação:
+
+1. Conectar na Rede_Viza
+2. Abrir navegador
+3. Digitar: iluminacao-viza.local
+4. Dashboard carrega ✅
+5. Fazer login (se configurado)
+6. Controlar iluminação!
+
+═══════════════════════════════════════════════════════════════════
+
+🐛 TROUBLESHOOTING
+
+PROBLEMA: iluminacao-viza.local não funciona
+SOLUÇÃO: Usar IP direto (hostname -I)
+
+PROBLEMA: Hostname não mudou
+SOLUÇÃO: sudo reboot (reiniciar Raspberry)
+
+PROBLEMA: mDNS não suporta .local (Windows antigo)
+SOLUÇÃO: Instalar Bonjour Print Services
+https://support.apple.com/kb/DL999
+
+PROBLEMA: Quer voltar para raspberrypi.local
+SOLUÇÃO: sudo ./scripts/setup_hostname.sh
+         Informar: raspberrypi
+
+═══════════════════════════════════════════════════════════════════
+
+📝 RESUMO FINAL
+
+CONFIGURAÇÃO:
+✅ WiFi: Rede_Viza (existente)
+✅ Hostname: iluminacao-viza
+✅ Acesso local: http://iluminacao-viza.local
+✅ Acesso remoto: http://10.0.0.1 (VPN)
+✅ HTTPS: Configurável
+✅ PWA: Instalável
+
+COMANDOS IMPORTANTES:
+sudo ./setup.sh                    → Instalação completa
+sudo ./scripts/setup_hostname.sh   → Alterar hostname
+sudo ./scripts/setup_https.sh      → Configurar HTTPS
+sudo ./wireguard_setup.sh          → Configurar VPN
+
+ACESSO:
+http://iluminacao-viza.local       → Rede local
+http://10.0.0.1                    → Via VPN
+https://iluminacao-viza.local      → Com HTTPS
+
+═══════════════════════════════════════════════════════════════════
+
+👨‍💻 Desenvolvido por: Engemase Engenharia
+🏢 Cliente: Viza Atacadista - Caçador/SC
+📅 Data: 30/10/2025
+📦 Versão: 1.0.0
+
+═══════════════════════════════════════════════════════════════════
+
+🎉 CONFIGURAÇÃO PERFEITA PARA A VIZA!
+
+URL profissional e fácil de lembrar: iluminacao-viza.local
+Acesso remoto seguro via VPN
+Sistema moderno e escalável
+
+Pronto para produção! ✅

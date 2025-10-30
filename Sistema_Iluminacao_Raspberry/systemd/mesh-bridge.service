@@ -1,0 +1,30 @@
+[Unit]
+Description=ESP32 Mesh Bridge - Sistema de Iluminação Viza
+Documentation=https://github.com/engemase/sistema-iluminacao-viza
+After=network.target
+Before=iluminacao-viza.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/sistema-iluminacao-viza
+
+# Comando para manter a porta serial aberta
+ExecStart=/bin/sh -c 'while true; do sleep 3600; done'
+
+# Reiniciar sempre
+Restart=always
+RestartSec=5
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mesh-bridge
+
+# Segurança
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

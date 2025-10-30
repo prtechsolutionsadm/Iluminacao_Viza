@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8"/>
+  
+  <!-- VIEWPORT ÚNICA E OTIMIZADA PARA PWA MOBILE -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- MANIFEST E TEMA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#8e44ad" />
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
+  <!-- PWA META TAGS OTIMIZADAS -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Viza Iluminação">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- TILES E CORES WINDOWS -->
+  <meta name="msapplication-TileImage" content="/images/icon-512x512.png">
+  <meta name="msapplication-TileColor" content="#8e44ad">
+
+  <!-- APPLE TOUCH ICONS -->
+  <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/images/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/images/icon-512x512.png">
+
+  <!-- TITULO DA GUIA -->
+  <title>Sistema De Iluminação Viza Atacadista</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #333;
+      min-height: 100vh;
+    }
+    
+    /* Espaço para menu inferior apenas em mobile */
+    @media (max-width: 767px) {
+      body {
+        padding-bottom: 80px;
+      }
+    }
+
+    /* ========== SISTEMA DE NOTIFICAÇÕES TOAST ========== */
+    
+    /* Container das notificações */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 400px;
+      pointer-events: none;
+    }
+
+    /* Estilo base do toast */
+    .toast {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      max-width: 350px;
+      min-width: 320px;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Toast visível */
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    /* Toast saindo */
+    .toast.hide {
+      transform: translateX(100%);
+      opacity: 0;
+      margin-bottom: -80px;
+    }
+
+    /* Ícones dos toasts */
+    .toast-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Conteúdo do toast */
+    .toast-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin: 0 0 4px 0;
+      color: #2c3e50;
+      line-height: 1.3;
+    }
+
+    .toast-message {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* Botão de fechar */
+    .toast-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .toast-close:hover {
+      background: rgba(0, 0, 0, 0.1);
+      color: #64748b;
+    }
+
+    /* Barra de progresso */
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: currentColor;
+      border-radius: 0 0 12px 12px;
+      opacity: 0.3;
+      transition: width linear;
+    }
+
+    .toast.success {
+      border-left: 4px solid #10b981;
+    }
+    .toast.success .toast-icon { color: #10b981; }
+    .toast.success .toast-progress { background: #10b981; }
+
+    .toast.error {
+      border-left: 4px solid #ef4444;
+    }
+    .toast.error .toast-icon { color: #ef4444; }
+    .toast.error .toast-progress { background: #ef4444; }
+
+    .toast.warning {
+      border-left: 4px solid #f59e0b;
+    }
+    .toast.warning .toast-icon { color: #f59e0b; }
+    .toast.warning .toast-progress { background: #f59e0b; }
+
+    .toast.info {
+      border-left: 4px solid #3b82f6;
+    }
+    .toast.info .toast-icon { color: #3b82f6; }
+    .toast.info .toast-progress { background: #3b82f6; }
+
+    .toast.system {
+      border-left: 4px solid #8b5cf6;
+    }
+    .toast.system .toast-icon { color: #8b5cf6; }
+    .toast.system .toast-progress { background: #8b5cf6; }
+
+    /* ========== MENU INFERIOR ESTILO APP ========== */
+    
+    /* ========== NAVEGAÇÃO NO CABEÇALHO ========== */
+    .bottom-nav {
+      display: none; /* Oculto por padrão no desktop */
+    }
+    
+    @media (max-width: 767px) {
+      .bottom-nav {
+        display: block; /* Mostrar apenas no mobile */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 8px 0;
+        z-index: 1000;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        margin-top: 0;
+      }
+    }
+    
+    .nav-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 8px;
+      text-decoration: none;
+      color: #666;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      min-width: 60px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .nav-item.active {
+      color: #8e44ad;
+      background: rgba(142, 68, 173, 0.1);
+    }
+    
+    .nav-item:hover {
+      color: #8e44ad;
+      background: rgba(142, 68, 173, 0.05);
+    }
+    
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+      line-height: 1;
+    }
+    
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      padding: 15px 20px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      gap: 20px;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 0 0 auto;
+    }
+    
+    .header-center {
+      flex: 0 0 auto;
+      text-align: left;
+      margin-left: 40px;
+    }
+    
+    .header-title-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 2px;
+    }
+    
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+      line-height: 1.2;
+    }
+    
+    .header-subtitle {
+      font-size: 12px;
+      color: #6c757d;
+      margin: 0;
+      font-weight: 500;
+      text-align: left;
+      margin-left: 0;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: 25px;
+    }
+    
+    .header-nav-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex: 1;
+      justify-content: center;
+    }
+    
+    .header-logo-right {
+      flex: 0 0 auto;
+    }
+
+    .logo {
+      height: 40px;
+      object-fit: contain;
+    }
+    
+    nav a {
+      margin: 0 8px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: inline-block;
+      font-size: 14px;
+    }
+    
+    nav a:hover {
+      background: rgba(142,68,173,0.1);
+      color: #8e44ad;
+    }
+
+    /* Status da conexão no header */
+    .status-conexao {
+      font-size: 11px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-online {
+      color: #10b981;
+    }
+    
+    .status-offline {
+      color: #ef4444;
+    }
+    
+    .status-connecting {
+      color: #fbbf24;
+    }
+    
+    main {
+      padding: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    /* ========== DASHBOARD ========== */
+    
+    .dashboard-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 30px 0;
+      text-align: center;
+    }
+    
+    /* Grid de Cards de Estatísticas */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-card.total {
+      --card-color: #8e44ad;
+      --card-color-light: #9b59b6;
+    }
+    
+    .stat-card.ligadas {
+      --card-color: #10b981;
+      --card-color-light: #34d399;
+    }
+    
+    .stat-card.desligadas {
+      --card-color: #ef4444;
+      --card-color-light: #f87171;
+    }
+    
+    .stat-card.sem-com {
+      --card-color: #fbbf24;
+      --card-color-light: #fcd34d;
+    }
+    
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .stat-icon {
+      font-size: 40px;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+    }
+    
+    .stat-badge {
+      background: var(--card-color);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-value {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--card-color);
+      line-height: 1;
+      margin: 10px 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-progress {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+    
+    .stat-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+      border-radius: 10px;
+      transition: width 1s ease;
+      box-shadow: 0 0 10px var(--card-color);
+    }
+    
+    /* Seções de Setores */
+    .sectors-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    
+    .sector-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 2px solid rgba(142, 68, 173, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .sector-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      border-color: rgba(142, 68, 173, 0.4);
+    }
+    
+    .sector-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(142, 68, 173, 0.1);
+    }
+    
+    .sector-icon {
+      font-size: 32px;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+    }
+    
+    .sector-info {
+      flex: 1;
+    }
+    
+    .sector-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+    }
+    
+    .sector-count {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    
+    .sector-stats {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .sector-stat {
+      flex: 1;
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid #e9ecef;
+    }
+    
+    .sector-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .sector-stat-value.on {
+      color: #10b981;
+    }
+    
+    .sector-stat-value.off {
+      color: #ef4444;
+    }
+    
+    .sector-stat-value.error {
+      color: #fbbf24;
+    }
+    
+    .sector-stat-label {
+      font-size: 11px;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .sector-progress-container {
+      margin-top: 15px;
+    }
+    
+    .sector-info-row {
+      display: flex;
+      gap: 15px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .sector-info-item {
+      flex: 1;
+      background: #f8f9fa;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .sector-info-label {
+      font-size: 12px;
+      color: #6c757d;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    
+    .sector-info-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2c3e50;
+      white-space: nowrap;
+    }
+    
+
+    /* Responsividade apenas para MOBILE */
+    @media (max-width: 767px) {
+      .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+      
+      .toast {
+        min-width: auto;
+        max-width: none;
+        font-size: 12px;
+        padding: 12px 16px;
+      }
+
+      header {
+        padding: 10px 15px;
+        gap: 15px;
+        flex-direction: column;
+      }
+      
+      /* Reorganizar para mobile: logos primeiro */
+      .header-left, .header-right {
+        width: auto;
+        flex: none;
+      }
+      
+      .header-left {
+        order: 1;
+        align-self: flex-start;
+      }
+      
+      .header-right {
+        order: 2;
+        align-self: flex-end;
+        position: absolute;
+        top: 10px;
+        right: 15px;
+      }
+      
+      .header-nav-section {
+        display: none; /* Ocultar menu no mobile */
+      }
+      
+      .header-logo-right {
+        display: flex;
+      }
+      
+      .header-center {
+        order: 3;
+        margin-bottom: 0;
+        margin-left: 0;
+        margin-top: 10px;
+        text-align: center;
+        width: 100%;
+      }
+      
+      .header-title-section {
+        flex-direction: column;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .header-title {
+        font-size: 16px;
+        text-align: center;
+        order: 1;
+      }
+      
+      .header-subtitle {
+        font-size: 11px;
+        text-align: center;
+        order: 2;
+      }
+      
+      .status-conexao {
+        order: 3;
+        font-size: 10px;
+        padding: 3px 6px;
+        margin-top: 5px;
+      }
+
+      header nav {
+        display: none; /* Ocultar menu de navegação no mobile */
+      }
+
+      .logo {
+        height: 32px;
+      }
+
+      main {
+        padding: 20px 15px;
+      }
+      
+      .dashboard-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      
+      .stat-card {
+        padding: 18px;
+        border-radius: 16px;
+      }
+      
+      .stat-icon {
+        font-size: 28px;
+      }
+      
+      .stat-value {
+        font-size: 32px;
+      }
+      
+      .stat-label {
+        font-size: 11px;
+      }
+      
+      .sectors-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .sector-card {
+        padding: 20px;
+        border-radius: 16px;
+      }
+      
+      .sector-icon {
+        font-size: 28px;
+      }
+      
+      .sector-name {
+        font-size: 18px;
+      }
+      
+      .sector-count {
+        font-size: 12px;
+      }
+      
+      .sector-stat {
+        padding: 10px 8px;
+      }
+      
+      .sector-stat-value {
+        font-size: 20px;
+      }
+      
+      .sector-stat-label {
+        font-size: 10px;
+      }
+      
+      .sector-info-row {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .sector-info-item {
+        padding: 8px 10px;
+      }
+      
+      .sector-info-label {
+        font-size: 11px;
+      }
+      
+      .sector-info-value {
+        font-size: 12px;
+      }
+    }
+
+    /* ========== MODAL DETALHES ========== */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+      position: relative;
+      background: white;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 1200px;
+      max-height: 85vh;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .modal-header {
+      background: linear-gradient(135deg, #8e44ad, #9b59b6);
+      color: white;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    
+    .modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+    
+    .modal-body {
+      padding: 30px;
+      max-height: calc(85vh - 80px);
+      overflow-y: auto;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #8e44ad;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    /* Grid de escravos */
+    .escravos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .escravo-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 20px;
+      border: 2px solid #e9ecef;
+      transition: all 0.3s ease;
+    }
+    
+    .escravo-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border-color: #8e44ad;
+    }
+    
+    .escravo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .escravo-id {
+      font-size: 18px;
+      font-weight: 700;
+      color: #8e44ad;
+    }
+    
+    .escravo-range {
+      font-size: 12px;
+      color: #6c757d;
+      background: #f8f9fa;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+    
+    .escravo-stats {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .escravo-stat-mini {
+      flex: 1;
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .escravo-stat-mini-value {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    
+    .escravo-stat-mini-value.on { color: #10b981; }
+    .escravo-stat-mini-value.off { color: #ef4444; }
+    .escravo-stat-mini-value.error { color: #fbbf24; }
+    
+    .escravo-stat-mini-label {
+      font-size: 10px;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .escravo-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .escravo-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    
+    .escravo-info-label {
+      color: #6c757d;
+      font-weight: 600;
+    }
+    
+    .escravo-info-value {
+      color: #2c3e50;
+      font-weight: 700;
+    }
+    
+    .sector-card {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .sector-card:hover {
+      cursor: pointer;
+    }
+
+    /* Animações */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .stat-card, .sector-card {
+      animation: fadeInUp 0.6s ease forwards;
+      animation-delay: calc(var(--index) * 0.1s);
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Container das notificações (sempre presente) -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Menus e Logos-->   
+  <header>
+    <div class="header-left">
+      <a href="/"><img src="images/Viza_Logo.png" alt="Viza" class="logo"></a>
+    </div>
+    
+    <div class="header-center">
+      <div class="header-title-section">
+        <h1 class="header-title">Sistema De Iluminação Viza</h1>
+        <!-- Status da conexão -->
+        <div id="status-conexao" class="status-conexao status-connecting">
+          <span id="status-text">Conectando</span>
+        </div>
+      </div>
+      <p class="header-subtitle">Controle Inteligente De Iluminação</p>
+    </div>
+    
+    <div class="header-right">
+      <div class="header-nav-section">
+        <nav>
+          <a href="/">🏢 Operação</a>
+          <a href="/Visualizacao">📊 Visualização</a>
+          <a href="/Consumo">⚡ Consumo</a>
+          <a href="/Banco">🗄️ Banco</a>
+          <a href="/Manual">📖 Manual</a>
+        </nav>
+      </div>
+      
+      <div class="header-logo-right">
+        <img src="images/Engemase_Logo.png" alt="Engemase" class="logo">
+      </div>
+    </div>
+  </header>
+  
+  <main>
+    <!-- Dashboard Content -->
+    <div id="dashboardContent">
+      <h2 class="dashboard-title">📊 Dashboard de Visualização Geral</h2>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <!-- Total Card -->
+        <div class="stat-card total" style="--index: 0">
+          <div class="stat-header">
+            <div class="stat-icon">💡</div>
+            <div class="stat-badge">TOTAL</div>
+          </div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total de Luminárias</div>
+          <div class="stat-progress">
+            <div class="stat-progress-bar" id="progress-total" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- Ligadas Card -->
+        <div class="stat-card ligadas" style="--index: 1">
+          <div class="stat-header">
+            <div class="stat-icon">✅</div>
+            <div class="stat-badge">LIGADAS</div>
+          </div>
+          <div class="stat-value" id="stat-ligadas">0</div>
+          <div class="stat-label">Luminárias Ativas</div>
+          <div class="stat-progress">
+            <div class="stat-progress-bar" id="progress-ligadas" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Desligadas Card -->
+        <div class="stat-card desligadas" style="--index: 2">
+          <div class="stat-header">
+            <div class="stat-icon">⭕</div>
+            <div class="stat-badge">DESLIGADAS</div>
+          </div>
+          <div class="stat-value" id="stat-desligadas">0</div>
+          <div class="stat-label">Luminárias Inativas</div>
+          <div class="stat-progress">
+            <div class="stat-progress-bar" id="progress-desligadas" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Sem Comunicação Card -->
+        <div class="stat-card sem-com" style="--index: 3">
+          <div class="stat-header">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-badge">SEM COM.</div>
+          </div>
+          <div class="stat-value" id="stat-sem-com">0</div>
+          <div class="stat-label">Sem Comunicação</div>
+          <div class="stat-progress">
+            <div class="stat-progress-bar" id="progress-sem-com" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sectors Container -->
+      <div class="sectors-container">
+        <!-- Estacionamento -->
+        <div class="sector-card" style="--index: 4">
+          <div class="sector-header">
+            <div class="sector-icon">🚗</div>
+            <div class="sector-info">
+              <h3 class="sector-name">Estacionamento</h3>
+              <p class="sector-count" id="sector-count-estacionamento">0 luminárias</p>
+            </div>
+          </div>
+          <div class="sector-stats">
+            <div class="sector-stat">
+              <span class="sector-stat-value on" id="sector-on-estacionamento">0</span>
+              <span class="sector-stat-label">Ligadas</span>
+            </div>
+            <div class="sector-stat">
+              <span class="sector-stat-value off" id="sector-off-estacionamento">0</span>
+              <span class="sector-stat-label">Desligadas</span>
+            </div>
+            <div class="sector-stat">
+              <span class="sector-stat-value error" id="sector-error-estacionamento">0</span>
+              <span class="sector-stat-label">Sem Com.</span>
+            </div>
+          </div>
+          <div class="sector-progress-container">
+            <div class="sector-info-row">
+              <div class="sector-info-item">
+                <span class="sector-info-label">🎛️ Modo:</span>
+                <span class="sector-info-value" id="sector-modo-estacionamento">-</span>
+              </div>
+              <div class="sector-info-item">
+                <span class="sector-info-label">🎯 Setpoint:</span>
+                <span class="sector-info-value" id="sector-setpoint-estacionamento">-</span>
+              </div>
+            </div>
+            <div class="sector-info-row" style="margin-top: 8px;">
+              <div class="sector-info-item">
+                <span class="sector-info-label">💡 Sensor LDR:</span>
+                <span class="sector-info-value" id="sector-ldr-estacionamento">-</span>
+              </div>
+            </div>
+            <div class="sector-info-row" style="margin-top: 8px;">
+              <div class="sector-info-item">
+                <span class="sector-info-label">📊 Taxa Operação:</span>
+                <span class="sector-info-value" id="sector-taxa-estacionamento">-</span>
+              </div>
+              <div class="sector-info-item">
+                <span class="sector-info-label">⚡ Brilho Médio:</span>
+                <span class="sector-info-value" id="sector-brilho-estacionamento">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loja -->
+        <div class="sector-card" style="--index: 5">
+          <div class="sector-header">
+            <div class="sector-icon">🏪</div>
+            <div class="sector-info">
+              <h3 class="sector-name">Loja</h3>
+              <p class="sector-count" id="sector-count-loja">0 luminárias</p>
+            </div>
+          </div>
+          <div class="sector-stats">
+            <div class="sector-stat">
+              <span class="sector-stat-value on" id="sector-on-loja">0</span>
+              <span class="sector-stat-label">Ligadas</span>
+            </div>
+            <div class="sector-stat">
+              <span class="sector-stat-value off" id="sector-off-loja">0</span>
+              <span class="sector-stat-label">Desligadas</span>
+            </div>
+            <div class="sector-stat">
+              <span class="sector-stat-value error" id="sector-error-loja">0</span>
+              <span class="sector-stat-label">Sem Com.</span>
+            </div>
+          </div>
+          <div class="sector-progress-container">
+            <div class="sector-info-row">
+              <div class="sector-info-item">
+                <span class="sector-info-label">🎛️ Modo:</span>
+                <span class="sector-info-value" id="sector-modo-loja">-</span>
+              </div>
+              <div class="sector-info-item">
+                <span class="sector-info-label">🎯 Setpoint:</span>
+                <span class="sector-info-value" id="sector-setpoint-loja">-</span>
+              </div>
+            </div>
+            <div class="sector-info-row" style="margin-top: 8px;">
+              <div class="sector-info-item">
+                <span class="sector-info-label">💡 Sensor LDR:</span>
+                <span class="sector-info-value" id="sector-ldr-loja">-</span>
+              </div>
+            </div>
+            <div class="sector-info-row" style="margin-top: 8px;">
+              <div class="sector-info-item">
+                <span class="sector-info-label">📊Taxa Operação:</span>
+                <span class="sector-info-value" id="sector-taxa-loja">-</span>
+              </div>
+              <div class="sector-info-item">
+                <span class="sector-info-label">⚡ Brilho Médio:</span>
+                <span class="sector-info-value" id="sector-brilho-loja">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Depósito -->
+        <div class="sector-card" style="--index: 6">
+          <div class="sector-header">
+            <div class="sector-icon">📦</div>
+            <div class="sector-info">
+              <h3 class="sector-name">Depósito</h3>
+              <p class="sector-count" id="sector-count-deposito">0 luminárias</p>
+            </div>
+          </div>
+          <div class="sector-stats">
+            <div class="sector-stat">
+              <span class="sector-stat-value on" id="sector-on-deposito">0</span>
+              <span class="sector-stat-label">Ligadas</span>
+            </div>
+            <div class="sector-stat">
+              <span class="sector-stat-value off" id="sector-off-deposito">0</span>
+              <span class="sector-stat-label">Desligadas</span>
+            </div>
+            <div class="sector-stat">
+              <span class="sector-stat-value error" id="sector-error-deposito">0</span>
+              <span class="sector-stat-label">Sem Com.</span>
+            </div>
+          </div>
+          <div class="sector-progress-container">
+            <div class="sector-info-row">
+              <div class="sector-info-item">
+                <span class="sector-info-label">🎛️ Modo:</span>
+                <span class="sector-info-value" id="sector-modo-deposito">-</span>
+              </div>
+              <div class="sector-info-item">
+                <span class="sector-info-label">🎯 Setpoint:</span>
+                <span class="sector-info-value" id="sector-setpoint-deposito">-</span>
+              </div>
+            </div>
+            <div class="sector-info-row" style="margin-top: 8px;">
+              <div class="sector-info-item">
+                <span class="sector-info-label">💡 Sensor LDR:</span>
+                <span class="sector-info-value" id="sector-ldr-deposito">-</span>
+              </div>
+            </div>
+            <div class="sector-info-row" style="margin-top: 8px;">
+              <div class="sector-info-item">
+                <span class="sector-info-label">📊 Taxa Operação:</span>
+                <span class="sector-info-value" id="sector-taxa-deposito">-</span>
+              </div>
+              <div class="sector-info-item">
+                <span class="sector-info-label">⚡ Brilho Médio:</span>
+                <span class="sector-info-value" id="sector-brilho-deposito">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Detalhes do Setor -->
+  <div id="modalDetalhes" class="modal" style="display: none;">
+    <div class="modal-overlay" onclick="fecharModal()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitulo">Detalhes do Setor</h2>
+        <button class="modal-close" onclick="fecharModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <div class="loading">Carregando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu Inferior Estilo App -->
+  <nav class="bottom-nav">
+    <div class="nav-container">
+      <a href="/" class="nav-item">
+        <div class="nav-icon">🏢</div>
+        <div class="nav-label">Operação</div>
+      </a>
+      <a href="/Visualizacao" class="nav-item active">
+        <div class="nav-icon">📊</div>
+        <div class="nav-label">Visualização</div>
+      </a>
+      <a href="/Consumo" class="nav-item">
+        <div class="nav-icon">⚡</div>
+        <div class="nav-label">Consumo</div>
+      </a>
+      <a href="/Banco" class="nav-item">
+        <div class="nav-icon">🗄️</div>
+        <div class="nav-label">Banco</div>
+      </a>
+      <a href="/Manual" class="nav-item">
+        <div class="nav-icon">📖</div>
+        <div class="nav-label">Manual</div>
+      </a>
+    </div>
+  </nav>
+
+  <script>
+    // ========== SISTEMA DE NOTIFICAÇÕES TOAST ==========
+    
+    class ToastManager {
+      constructor() {
+        this.container = document.getElementById('toast-container');
+        this.toasts = new Map();
+        this.toastCounter = 0;
+      }
+
+      show(type, title, message, options = {}) {
+        const id = ++this.toastCounter;
+        const toast = this.createToast(id, type, title, message, options);
+        
+        this.container.appendChild(toast);
+        this.toasts.set(id, toast);
+
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+
+        // Auto remove (unless persistent)
+        if (!options.persistent) {
+          const duration = options.duration || 5000;
+          setTimeout(() => this.remove(id), duration);
+        }
+
+        return id;
+      }
+
+      createToast(id, type, title, message, options) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.dataset.id = id;
+
+        const iconMap = {
+          success: '✓',
+          error: '✕',
+          warning: '⚠',
+          info: 'ℹ',
+          system: '⚙'
+        };
+
+        toast.innerHTML = `
+          <div class="toast-icon">${iconMap[type] || 'ℹ'}</div>
+          <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-message">${message}</div>
+          </div>
+          <button class="toast-close" onclick="toast.remove(${id})">&times;</button>
+          <div class="toast-progress"></div>
+        `;
+
+        return toast;
+      }
+
+      remove(id) {
+        const toast = this.toasts.get(id);
+        if (toast) {
+          toast.classList.add('hide');
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+            }
+            this.toasts.delete(id);
+          }, 400);
+        }
+      }
+
+      success(title, message, options = {}) {
+        return this.show('success', title, message, options);
+      }
+
+      error(title, message, options = {}) {
+        return this.show('error', title, message, options);
+      }
+
+      warning(title, message, options = {}) {
+        return this.show('warning', title, message, options);
+      }
+
+      info(title, message, options = {}) {
+        return this.show('info', title, message, options);
+      }
+
+      system(title, message, options = {}) {
+        return this.show('system', title, message, options);
+      }
+    }
+
+    // Instância global do toast
+    const toast = new ToastManager();
+
+    // ========== VARIÁVEIS E ESTADO ==========
+    
+    // Variáveis para controle de status de conexão
+    let statusConexao = false;
+    let toastConexaoId = null;
+    let verificandoConexao = false;
+    let tentativasFalhas = 0;
+
+    // ========== FUNÇÕES DE STATUS DE CONEXÃO ==========
+
+    // Função Para Verificar Conexão Com a Rede WiFi Específica
+    async function verificarConexaoViza() {
+      // Se já sabemos que não há internet, não adianta tentar
+      if (!navigator.onLine) {
+        return false;
+      }
+
+      try {
+        // Verificar se é possível acessar o sistema Viza
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000); // Aumentado para 4 segundos
+
+        const response = await fetch('/estado', {
+          method: 'GET',
+          signal: controller.signal,
+          cache: 'no-cache'
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          tentativasFalhas = 0; // Resetar contador em caso de sucesso
+          return true;
+        } else {
+          tentativasFalhas++;
+          return false;
+        }
+      } catch (error) {
+        tentativasFalhas++;
+        console.log(`Erro na verificação de conexão (tentativa ${tentativasFalhas}):`, error.name);
+        // Só retorna 'false' de fato após 3 tentativas
+        if (tentativasFalhas < 6) {
+          return true; // Finge que está online para ser mais tolerante
+        }
+        console.log('Erro na verificação de conexão:', error.name);
+        return false;
+      }
+    }
+
+    // Função Para Atualizar Status da Conexão
+    async function atualizarStatusConexao() {
+      if (verificandoConexao) return;
+      verificandoConexao = true;
+
+      try {
+        const conectadoViza = await verificarConexaoViza();
+        const statusElement = document.getElementById('status-conexao');
+        const statusText = document.getElementById('status-text');
+        
+        if (statusElement) {
+          if (conectadoViza && !statusConexao) {
+            // Conectou à rede Viza
+            statusText.textContent = 'Conectado';
+            statusElement.className = 'status-conexao status-online';
+            
+            // Remover toast de conexão perdida se existir
+            if (toastConexaoId) {
+              toast.remove(toastConexaoId);
+              toastConexaoId = null;
+            }
+            
+            toast.success('Conectado à rede Iluminação_Viza', 'Sistema de iluminação disponível');
+
+          } else if (!conectadoViza && statusConexao) {
+            // Perdeu conexão com a rede Viza
+            statusText.textContent = 'Desconectado';
+            statusElement.className = 'status-conexao status-offline';
+            
+            toastConexaoId = toast.error('Fora da rede Iluminação_Viza', 'Conecte-se à rede WiFi "Iluminação_Viza" para controlar o sistema', {
+              persistent: true,
+              action: {
+                text: 'Tentar Novamente',
+                callback: () => {
+                  atualizarStatusConexao();
+                  toast.info('Verificando...', 'Tentando conectar à rede Iluminação_Viza');
+                }
+              }
+            });
+          }
+          
+          statusConexao = conectadoViza;
+        }
+      } catch (error) {
+        console.error('Erro ao verificar status:', error);
+      } finally {
+        verificandoConexao = false;
+      }
+    }
+
+    // Atualização de status em tempo real
+    function atualizarStatusTempoReal() {
+      // Verificar status da conexão com a rede Viza a cada 2 segundos
+      setInterval(atualizarStatusConexao, 2000);
+    }
+
+    // Monitoramento de rede aprimorado
+    function monitorarConexao() {
+      // Verificar mudanças na conectividade geral
+      window.addEventListener('online', () => {
+        setTimeout(atualizarStatusConexao, 1000); // Aguardar 1 segundo e verificar
+      });
+      
+      window.addEventListener('offline', () => {
+        if (statusConexao) {
+          const statusElement = document.getElementById('status-conexao');
+          const statusText = document.getElementById('status-text');
+          
+          statusText.textContent = 'Desconectado';
+          statusElement.className = 'status-conexao status-offline';
+          
+          toast.warning('Sem Conexão com Internet', 'Verifique sua conectividade', {
+            persistent: true
+          });
+          
+          statusConexao = false;
+        }
+      });
+
+      // Verificar quando a página ganha foco (usuário volta ao app)
+      window.addEventListener('focus', () => {
+        setTimeout(atualizarStatusConexao, 500);
+      });
+
+      // Verificar quando há mudança de visibilidade da página
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          setTimeout(atualizarStatusConexao, 500);
+        }
+      });
+    }
+
+    // ========== DASHBOARD - BUSCA E PROCESSAMENTO DE DADOS ==========
+    
+    // Mapeamento de setores
+    const SETORES = {
+      estacionamento: {
+        nome: 'Estacionamento',
+        ids: []
+      },
+      loja: {
+        nome: 'Loja',
+        ids: []
+      },
+      deposito: {
+        nome: 'Depósito',
+        ids: []
+      }
+    };
+
+    // Preencher IDs dos setores baseado no endpoint
+    // Estacionamento: IDs 1-225
+    for (let i = 1; i <= 225; i++) {
+      SETORES.estacionamento.ids.push(i);
+    }
+    
+    // Loja: IDs 262-516
+    for (let i = 262; i <= 516; i++) {
+      SETORES.loja.ids.push(i);
+    }
+    
+    // Depósito: IDs 553-566
+    for (let i = 553; i <= 566; i++) {
+      SETORES.deposito.ids.push(i);
+    }
+
+    // Função para buscar dados completos do ESP32
+    async function buscarDadosDashboard() {
+      try {
+        const response = await fetch('/dados_dashboard', {
+          method: 'GET',
+          cache: 'no-cache'
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao buscar dados');
+        }
+
+        const dados = await response.json();
+        return dados;
+      } catch (error) {
+        console.error('Erro ao buscar dados do dashboard:', error);
+        return null;
+      }
+    }
+
+    // Função para processar dados completos do novo endpoint
+    function processarDados(dados) {
+      if (!dados || !dados.luminarias) return null;
+
+      const stats = {
+        total: 0,
+        ligadas: 0,
+        desligadas: 0,
+        semComunicacao: 0,
+        setores: {
+          estacionamento: { 
+            total: 0, ligadas: 0, desligadas: 0, semCom: 0,
+            modo: '', brilho: 0, ldrMedia: 0, ldrSensores: 0,
+            taxaOperacao: 0, brilhoMedio: 0
+          },
+          loja: { 
+            total: 0, ligadas: 0, desligadas: 0, semCom: 0,
+            modo: '', brilho: 0, ldrMedia: 0, ldrSensores: 0,
+            taxaOperacao: 0, brilhoMedio: 0
+          },
+          deposito: { 
+            total: 0, ligadas: 0, desligadas: 0, semCom: 0,
+            modo: '', brilho: 0, ldrMedia: 0, ldrSensores: 0,
+            taxaOperacao: 0, brilhoMedio: 0
+          }
+        },
+        config: dados.config || {},
+        horario: dados.horario || {},
+        agendamentos: dados.agendamentos || []
+      };
+
+      // Processar dados de luminárias por setor (já vêm calculados)
+      if (dados.luminarias.estacionamento) {
+        const est = dados.luminarias.estacionamento;
+        stats.setores.estacionamento.total = est.total;
+        stats.setores.estacionamento.ligadas = est.ligadas;
+        stats.setores.estacionamento.desligadas = est.desligadas;
+        stats.setores.estacionamento.semCom = est.sem_comunicacao;
+        stats.setores.estacionamento.taxaOperacao = est.taxa_operacao || 0;
+        stats.setores.estacionamento.brilhoMedio = est.brilho_medio || 0;
+        
+        stats.total += est.total;
+        stats.ligadas += est.ligadas;
+        stats.desligadas += est.desligadas;
+        stats.semComunicacao += est.sem_comunicacao;
+      }
+
+      if (dados.luminarias.loja) {
+        const loja = dados.luminarias.loja;
+        stats.setores.loja.total = loja.total;
+        stats.setores.loja.ligadas = loja.ligadas;
+        stats.setores.loja.desligadas = loja.desligadas;
+        stats.setores.loja.semCom = loja.sem_comunicacao;
+        stats.setores.loja.taxaOperacao = loja.taxa_operacao || 0;
+        stats.setores.loja.brilhoMedio = loja.brilho_medio || 0;
+        
+        stats.total += loja.total;
+        stats.ligadas += loja.ligadas;
+        stats.desligadas += loja.desligadas;
+        stats.semComunicacao += loja.sem_comunicacao;
+      }
+
+      if (dados.luminarias.deposito) {
+        const dep = dados.luminarias.deposito;
+        stats.setores.deposito.total = dep.total;
+        stats.setores.deposito.ligadas = dep.ligadas;
+        stats.setores.deposito.desligadas = dep.desligadas;
+        stats.setores.deposito.semCom = dep.sem_comunicacao;
+        stats.setores.deposito.taxaOperacao = dep.taxa_operacao || 0;
+        stats.setores.deposito.brilhoMedio = dep.brilho_medio || 0;
+        
+        stats.total += dep.total;
+        stats.ligadas += dep.ligadas;
+        stats.desligadas += dep.desligadas;
+        stats.semComunicacao += dep.sem_comunicacao;
+      }
+
+      // Adicionar dados de modo e brilho por setor
+      if (dados.setores) {
+        if (dados.setores.estacionamento) {
+          stats.setores.estacionamento.modo = dados.setores.estacionamento.modo;
+          stats.setores.estacionamento.brilho = dados.setores.estacionamento.brilho;
+        }
+        if (dados.setores.loja) {
+          stats.setores.loja.modo = dados.setores.loja.modo;
+          stats.setores.loja.brilho = dados.setores.loja.brilho;
+        }
+        if (dados.setores.deposito) {
+          stats.setores.deposito.modo = dados.setores.deposito.modo;
+          stats.setores.deposito.brilho = dados.setores.deposito.brilho;
+        }
+      }
+
+      // Adicionar dados de LDR
+      if (dados.sensores_ldr) {
+        stats.setores.estacionamento.ldrMedia = dados.sensores_ldr.estacionamento_media;
+        stats.setores.estacionamento.ldrSensores = dados.sensores_ldr.estacionamento_sensores;
+        stats.setores.loja.ldrMedia = dados.sensores_ldr.loja_media;
+        stats.setores.loja.ldrSensores = dados.sensores_ldr.loja_sensores;
+        stats.setores.deposito.ldrMedia = dados.sensores_ldr.deposito_media;
+        stats.setores.deposito.ldrSensores = dados.sensores_ldr.deposito_sensores;
+      }
+
+      return stats;
+    }
+
+    // Função para atualizar os cards de estatísticas gerais
+    function atualizarCardsGerais(stats) {
+      // Total
+      document.getElementById('stat-total').textContent = stats.total;
+      document.getElementById('progress-total').style.width = '100%';
+
+      // Ligadas
+      document.getElementById('stat-ligadas').textContent = stats.ligadas;
+      const percLigadas = stats.total > 0 ? (stats.ligadas / stats.total * 100).toFixed(0) : 0;
+      document.getElementById('progress-ligadas').style.width = percLigadas + '%';
+
+      // Desligadas
+      document.getElementById('stat-desligadas').textContent = stats.desligadas;
+      const percDesligadas = stats.total > 0 ? (stats.desligadas / stats.total * 100).toFixed(0) : 0;
+      document.getElementById('progress-desligadas').style.width = percDesligadas + '%';
+
+      // Sem Comunicação
+      document.getElementById('stat-sem-com').textContent = stats.semComunicacao;
+      const percSemCom = stats.total > 0 ? (stats.semComunicacao / stats.total * 100).toFixed(0) : 0;
+      document.getElementById('progress-sem-com').style.width = percSemCom + '%';
+    }
+
+    // Função para atualizar os cards de setores
+    function atualizarCardsSetores(stats) {
+      Object.keys(stats.setores).forEach(setorKey => {
+        const setor = stats.setores[setorKey];
+        
+        // Contagem total simplificada
+        document.getElementById(`sector-count-${setorKey}`).textContent = 
+          `${setor.total} luminárias`;
+        
+        // Estatísticas
+        document.getElementById(`sector-on-${setorKey}`).textContent = setor.ligadas;
+        document.getElementById(`sector-off-${setorKey}`).textContent = setor.desligadas;
+        document.getElementById(`sector-error-${setorKey}`).textContent = setor.semCom;
+        
+        // MODO (Setor ou Geral)
+        let modoTexto = '-';
+        if (setor.modo) {
+          if (setor.modo === 'automatico') {
+            modoTexto = '🤖 Automático';
+          } else if (setor.modo === 'manual') {
+            modoTexto = `✋ Manual (${setor.brilho}%)`;
+          }
+          // Indicar se está usando configuração de setor ou geral
+          if (stats.config && setor.modo === stats.config.modo_geral && setor.brilho === stats.config.brilho_geral) {
+            modoTexto += ' [Geral]';
+          } else {
+            modoTexto += ' [Setor]';
+          }
+        }
+        document.getElementById(`sector-modo-${setorKey}`).textContent = modoTexto;
+        
+        // SETPOINT
+        let setpointTexto = '-';
+        if (setor.modo === 'automatico' && stats.config) {
+          setpointTexto = `${Math.round(stats.config.setpoint_lux)} lux`;
+        } else if (setor.modo === 'manual') {
+          setpointTexto = `${setor.brilho}% (Manual)`;
+        }
+        document.getElementById(`sector-setpoint-${setorKey}`).textContent = setpointTexto;
+        
+        // SENSOR LDR (Média do Setor)
+        let ldrTexto = '-';
+        if (setor.ldrSensores > 0) {
+          ldrTexto = `${setor.ldrMedia} lux (${setor.ldrSensores} sensores)`;
+        } else {
+          ldrTexto = 'Sem dados';
+        }
+        document.getElementById(`sector-ldr-${setorKey}`).textContent = ldrTexto;
+        
+        // TAXA DE OPERAÇÃO (% de luminárias ligadas)
+        let taxaTexto = `${setor.taxaOperacao}%`;
+        document.getElementById(`sector-taxa-${setorKey}`).textContent = taxaTexto;
+        
+        // BRILHO MÉDIO (% médio das luminárias ligadas)
+        let brilhoMedioTexto = '-';
+        if (setor.ligadas > 0 && setor.brilhoMedio > 0) {
+          brilhoMedioTexto = `${setor.brilhoMedio}%`;
+        } else {
+          brilhoMedioTexto = '0%';
+        }
+        document.getElementById(`sector-brilho-${setorKey}`).textContent = brilhoMedioTexto;
+      });
+    }
+    
+    // Função para atualizar informações extras do sistema
+    function atualizarInformacoesExtras(stats) {
+      // Atualizar título do dashboard com horário se disponível
+      const dashTitle = document.querySelector('.dashboard-title');
+      if (dashTitle && stats.horario && stats.horario.formatado) {
+        dashTitle.textContent = `📊 Dashboard - ${stats.horario.formatado}`;
+      }
+      
+      // Log de informações úteis no console
+      if (stats.config) {
+        console.log('Sistema:', {
+          modo: stats.config.modo_geral,
+          setpointLux: stats.config.setpoint_lux,
+          nosConectados: stats.config.nos_conectados,
+          totalLuminarias: stats.config.total_luminarias
+        });
+      }
+      
+      if (stats.agendamentos && stats.agendamentos.length > 0) {
+        console.log('Agendamentos ativos:', stats.agendamentos);
+      }
+    }
+
+    // Função principal para atualizar dashboard
+    async function atualizarDashboard() {
+      if (!statusConexao) {
+        console.log('Aguardando conexão com a rede Viza...');
+        return;
+      }
+
+      const dados = await buscarDadosDashboard();
+      if (dados) {
+        const stats = processarDados(dados);
+        if (stats) {
+          atualizarCardsGerais(stats);
+          atualizarCardsSetores(stats);
+          atualizarInformacoesExtras(stats);
+        }
+      }
+    }
+
+    // Atualização automática a cada 3 segundos
+    function iniciarAtualizacaoAutomatica() {
+      // Primeira atualização imediata após 2 segundos
+      setTimeout(atualizarDashboard, 2000);
+      
+      // Atualizações periódicas
+      setInterval(atualizarDashboard, 3000);
+    }
+
+    // ========== MODAL DETALHES POR ESCRAVO ==========
+    
+    // Função para abrir modal com detalhes do setor
+    async function abrirDetalhesSetor(setor) {
+      const nomes = {
+        'estacionamento': '🚗 Estacionamento',
+        'loja': '🏪 Loja',
+        'deposito': '📦 Depósito'
+      };
+      
+      document.getElementById('modalTitulo').textContent = `Detalhes: ${nomes[setor]}`;
+      document.getElementById('modalDetalhes').style.display = 'flex';
+      document.getElementById('modalBody').innerHTML = '<div class="loading">Carregando dados...</div>';
+      
+      try {
+        const response = await fetch(`/dados_setor?setor=${setor}`, {
+          method: 'GET',
+          cache: 'no-cache'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Erro ao buscar dados');
+        }
+        
+        const dados = await response.json();
+        exibirDadosEscravos(dados);
+      } catch (error) {
+        console.error('Erro ao buscar detalhes:', error);
+        document.getElementById('modalBody').innerHTML = 
+          '<div class="loading" style="color: #ef4444;">Erro ao carregar dados</div>';
+      }
+    }
+    
+    // Função para exibir dados dos escravos no modal
+    function exibirDadosEscravos(dados) {
+      if (!dados.escravos || dados.escravos.length === 0) {
+        document.getElementById('modalBody').innerHTML = 
+          '<div class="loading">Nenhum dado disponível</div>';
+        return;
+      }
+      
+      let html = '<div class="escravos-grid">';
+      
+      dados.escravos.forEach(escravo => {
+        const ldrTexto = escravo.ldr >= 0 ? `${escravo.ldr} lux` : 'Sem dados';
+        const taxaOperacao = escravo.total > 0 ? 
+          Math.round((escravo.ligadas / escravo.total) * 100) : 0;
+        
+        html += `
+          <div class="escravo-card">
+            <div class="escravo-header">
+              <div class="escravo-id">Escravo #${escravo.id_escravo}</div>
+              <div class="escravo-range">ID ${escravo.id_inicial}-${escravo.id_final}</div>
+            </div>
+            
+            <div class="escravo-stats">
+              <div class="escravo-stat-mini">
+                <span class="escravo-stat-mini-value on">${escravo.ligadas}</span>
+                <span class="escravo-stat-mini-label">Ligadas</span>
+              </div>
+              <div class="escravo-stat-mini">
+                <span class="escravo-stat-mini-value off">${escravo.desligadas}</span>
+                <span class="escravo-stat-mini-label">Desligadas</span>
+              </div>
+              <div class="escravo-stat-mini">
+                <span class="escravo-stat-mini-value error">${escravo.sem_comunicacao}</span>
+                <span class="escravo-stat-mini-label">Sem Com.</span>
+              </div>
+            </div>
+            
+            <div class="escravo-info">
+              <div class="escravo-info-item">
+                <span class="escravo-info-label">💡 Sensor LDR:</span>
+                <span class="escravo-info-value">${ldrTexto}</span>
+              </div>
+              <div class="escravo-info-item">
+                <span class="escravo-info-label">⚡ Brilho Médio:</span>
+                <span class="escravo-info-value">${escravo.brilho_medio}%</span>
+              </div>
+              <div class="escravo-info-item">
+                <span class="escravo-info-label">📊 Taxa Operação:</span>
+                <span class="escravo-info-value">${taxaOperacao}%</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      document.getElementById('modalBody').innerHTML = html;
+    }
+    
+    // Função para fechar modal
+    function fecharModal() {
+      document.getElementById('modalDetalhes').style.display = 'none';
+    }
+    
+    // Adicionar evento de clique nos cards de setores
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const setores = ['estacionamento', 'loja', 'deposito'];
+        setores.forEach((setor, index) => {
+          const card = document.querySelectorAll('.sector-card')[index];
+          if (card) {
+            card.addEventListener('click', () => abrirDetalhesSetor(setor));
+            card.style.cursor = 'pointer';
+          }
+        });
+      }, 500);
+    });
+
+    // ========== INICIALIZAÇÃO ==========
+    
+    // Inicializar monitoramento
+    atualizarStatusTempoReal();
+    monitorarConexao();
+    
+    // Verificar status inicial da conexão
+    setTimeout(atualizarStatusConexao, 1000);
+    
+    // Iniciar atualização automática do dashboard
+    iniciarAtualizacaoAutomatica();
+
+  </script>
+
+</body>
+</html>
