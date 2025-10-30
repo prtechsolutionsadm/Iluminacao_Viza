@@ -47,7 +47,7 @@ fi
 # Usuário real
 REAL_USER=${SUDO_USER:-$USER}
 REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
-PROJECT_DIR="$REAL_HOME/sistema-iluminacao-viza"
+PROJECT_DIR="$REAL_HOME/Sistema_Iluminacao_Viza"
 
 clear
 echo -e "${MAGENTA}"
